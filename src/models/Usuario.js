@@ -43,6 +43,10 @@ const Usuario = sequelize.define('Usuario', {
             model: 'Ubicacion',
             key: 'UbicacionID'
         }
+    },
+    EsAdmin: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false
     }
 }, {
     tableName: 'Usuario',

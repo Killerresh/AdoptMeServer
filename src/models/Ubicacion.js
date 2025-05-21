@@ -8,11 +8,11 @@ const Ubicacion = sequelize.define('Ubicacion', {
         primaryKey: true
     },
     Longitud: {
-        type: DataTypes.DECIMAL(9,6),
+        type: DataTypes.DECIMAL(10,7),
         allowNull: false
     },
     Latitud: {
-        type: DataTypes.DECIMAL(9,6),
+        type: DataTypes.DECIMAL(10,7),
         allowNull: false
     }
 }, {
