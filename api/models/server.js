@@ -2,27 +2,21 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const sequelize = require('../config/db');
+const { sequelize, conexionConReintentos}  = require('../config/db');
 
 class Server {
 
     constructor() {
         this.app = express();
         this.port = process.env.PORT;
-        this.connectDB();
         this.middlewares();
         this.routes();
         this.handleErrors();
     }
 
-    async connectDB() {
-        try {
-            await sequelize.authenticate();
-            console.log('Conexión a SQL Server establecida correctamente');
-        } catch(error) {
-            console.error('Error al conectar con la base de datos: ', error);
-            process.exit(1);
-        }
+    async start() {
+        await conexionConReintentos();
+        this.listen();
     }
 
     routes() {

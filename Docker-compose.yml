@@ -1,0 +1,35 @@
+version: '3.8'
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+  app:
+    build: ./api
+    ports:
+      - "3000:3000"
+    volumes:
+      - "./api:/app"
+      - /app/node_modules
+    depends_on:
+      - sqlserver
+    env_file:
+      - .env
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    ports:
+      - "14330:1433"
+    volumes:
+      - "sql-data:/var/opt/mssql"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SA_PASSWORD}
+      - MSSQL_PID=Express
+
+volumes:
+  sql-data:
