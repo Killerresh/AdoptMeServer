@@ -1,13 +1,15 @@
 const { Sequelize } = require('sequelize');
 
+const esPrueba = process.env.NODE_ENV === 'test';
+
 const sequelize = new Sequelize(
-    process.env.DB_NAME, 
+    esPrueba ? process.env.DB_PRUEBA_NAME : process.env.DB_NAME, 
     process.env.DB_USER, 
     process.env.DB_PASSWORD, 
     {
-        host: process.env.DB_HOST,
+        host: esPrueba ? process.env.DB_PRUEBA_HOST : process.env.DB_HOST,
         dialect: process.env.DB_DIALECT,
-        port: process.env.DB_PORT,
+        port: esPrueba ? process.env.DB_PRUEBA_PORT : process.env.DB_PORT,
         dialectOptions: {
             options: {
                 encrypt: false,
