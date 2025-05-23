@@ -1,4 +1,4 @@
-const Ubicacion = require('../models/Ubicacion');
+const { Ubicacion } = require('../models');
 
 exports.definirUbicacion = async (req, res) => {
     try {

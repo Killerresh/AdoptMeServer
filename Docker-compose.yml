@@ -9,12 +9,22 @@ services:
     depends_on:
       - app
   app:
-    build: ./api
+    build:
+      context: ./api
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     volumes:
       - "./api:/app"
       - /app/node_modules
+    depends_on:
+      - sqlserver
+    env_file:
+      - .env
+  pruebas:
+    build:
+      context: .
+      dockerfile: pruebas/Dockerfile.test
     depends_on:
       - sqlserver
     env_file:

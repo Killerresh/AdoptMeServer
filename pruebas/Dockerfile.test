@@ -1,0 +1,12 @@
+FROM node:latest
+
+WORKDIR /app
+COPY ./api/package*.json ./
+RUN npm install 
+
+COPY ./api ./api
+COPY ./pruebas ./pruebas
+
+ENV NODE_ENV=test
+
+CMD [ "npm", "test" ]
