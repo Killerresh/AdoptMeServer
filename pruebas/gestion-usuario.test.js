@@ -1,17 +1,29 @@
+jest.setTimeout(30000); 
 const request = require("supertest")
 const Server = require("../api/server/server")
-const { sequelize } = require("../api/config/db");
+const { sequelize, conexionConReintentos } = require("../api/config/db");
+const { Usuario, Ubicacion } = require('../api/models');
 
 let app;
 
 beforeAll(async () => {
-    app = new Server().app;
-
+    await conexionConReintentos();
     await sequelize.sync();
+    app = new Server().app;
 });
 
 afterAll(async () => {
-    await sequelize.close();
+    try {
+        await Usuario.destroy({ where: {}, cascade: true });
+        await Ubicacion.destroy({ where: {}, cascade: true });
+
+        await sequelize.query("DBCC CHECKIDENT ('dbo.Ubicacion', RESEED, 0)");
+        await sequelize.query("DBCC CHECKIDENT ('dbo.Usuario', RESEED, 0)");
+    } catch (error) {
+        console.error("Error limpiando la base de datos:", error);
+    } finally {
+        await sequelize.close();
+    }
 });
 
 describe('Pruebas de gestión de usuarios', () => {

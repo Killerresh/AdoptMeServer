@@ -6,6 +6,12 @@
     "start": "node app.js",
     "test": "cross-env NODE_ENV=test jest --runInBand"
   },
+  "jest": {
+    "roots": ["<rootDir>/pruebas"],
+    "testMatch": [
+      "**/?(*.)+(spec|test).[jt]s?(x)"
+    ]
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

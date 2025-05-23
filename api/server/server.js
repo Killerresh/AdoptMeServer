@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { sequelize, conexionConReintentos}  = require('../config/db');
+const { conexionConReintentos }  = require('../config/db');
 
 class Server {
 
