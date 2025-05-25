@@ -46,3 +46,6 @@ pids/
 
 # Test y depuración
 test-results/
+
+.actrc
+.github

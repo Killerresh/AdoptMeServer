@@ -18,7 +18,7 @@ const sequelize = new Sequelize(
         }
 });
 
-async function conexionConReintentos(reintentos = 10, delay = 5000) {
+async function conexionConReintentos(reintentos = 10, delay = 10000) {
     while (reintentos > 0) {
         try {
             await sequelize.authenticate();
