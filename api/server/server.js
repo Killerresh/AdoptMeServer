@@ -20,8 +20,8 @@ class Server {
     }
 
     routes() {
-        this.app.use('/api/usuarios', require('../routes/usuario.routes'));
-        this.app.use('/api/ubicaciones', require('../routes/ubicacion.routes'));
+        this.app.use('/api/usuarios', require('../servicios/routes/usuario.routes'));
+        this.app.use('/api/ubicaciones', require('../servicios/routes/ubicacion.routes'));
     }
 
     middlewares() {

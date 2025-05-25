@@ -1,4 +1,4 @@
-jest.setTimeout(30000); 
+jest.setTimeout(60000);
 const request = require("supertest")
 const Server = require("../api/server/server")
 const { sequelize, conexionConReintentos } = require("../api/config/db");
@@ -53,7 +53,7 @@ describe('Pruebas de gestión de usuarios', () => {
             });
 
         console.log("Respuesta POST /api/usuarios: ", res.body)
-        expect(res.statusCode).toBe(200);
+        expect(res.statusCode).toBe(201);
     });
 
     test('Debe obtener todos los usuarios', async () => {

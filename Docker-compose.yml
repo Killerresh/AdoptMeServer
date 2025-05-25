@@ -1,17 +1,19 @@
 version: '3.8'
 services:
   nginx:
-    image: nginx:latest
+    build: 
+      context: ./nginx
+      dockerfile: Dockerfile.nginx
+    container_name: nginx
     ports:
       - "8080:80"
-    volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - app
   app:
     build:
       context: ./api
       dockerfile: Dockerfile
+    container_name: adoptMeApp
     ports:
       - "3000:3000"
     volumes:
@@ -25,21 +27,33 @@ services:
     build:
       context: .
       dockerfile: pruebas/Dockerfile.test
+    container_name: adoptMePruebas
     depends_on:
       - sqlserver
     env_file:
       - .env
   sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    build: 
+      context: ./sqlserver
+      dockerfile: Dockerfile.sqlserver
     container_name: sqlserver
     ports:
       - "14330:1433"
-    volumes:
-      - "sql-data:/var/opt/mssql"
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=${SA_PASSWORD}
       - MSSQL_PID=Express
+    env_file:
+      - .env
+    volumes:
+      - ./sqlserver/entrypoint.sh:/docker-entrypoint-initdb.d/entrypoint.sh:ro
+      - ./sqlserver/esquema-base.sql:/tmp/esquema-base.sql:ro
+      - "sql-data:/var/opt/mssql"
+    healthcheck:
+      test: [ "CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S 127.0.0.1 -U sa -P $$SA_PASSWORD -Q 'SELECT 1'" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
 volumes:
   sql-data:

@@ -9,18 +9,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    Correo: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-      validate: {
-        isEmail: true
-      }
-    },
-    ContrasenaHash: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
     FechaRegistro: {
       type: DataTypes.DATE,
       allowNull: true
@@ -37,8 +25,8 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    EsAdmin: {
-      type: DataTypes.BOOLEAN,
+    AccesoID: {
+      type: DataTypes.INTEGER,
       allowNull: false
     }
   }, {
@@ -49,6 +37,12 @@ module.exports = (sequelize, DataTypes) => {
   Usuario.associate = (models) => {
     Usuario.belongsTo(models.Ubicacion, {
       foreignKey: 'UbicacionID'
+    });
+  };
+
+  Usuario.associate = (models) => {
+    Usuario.belongsTo(models.Acceso, {
+      foreignKey: 'AccesoID'
     });
   };
 

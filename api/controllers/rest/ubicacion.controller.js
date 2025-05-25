@@ -1,6 +1,6 @@
-const { Ubicacion } = require('../models');
+const { Ubicacion } = require('../../models');
 
-exports.definirUbicacion = async (req, res) => {
+exports.registrarUbicacion = async (req, res) => {
     try {
         const ubicacion = await Ubicacion.create(req.body);
         res.json(ubicacion);
