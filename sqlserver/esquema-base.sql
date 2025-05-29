@@ -43,8 +43,6 @@ CREATE TABLE [dbo].[Mascota] (
     [Sexo] VARCHAR(10) NOT NULL,
     [Tamaño] VARCHAR(10) NOT NULL,
     [Descripcion] VARCHAR(MAX) NULL,
-    [EstadoAdopcion] BIT NOT NULL DEFAULT 0,
-    [FechaPublicacion] DATETIME NULL DEFAULT GETDATE(),
     [PublicadorID] INT NOT NULL,
     [UbicacionID] INT NOT NULL,
     CONSTRAINT [PK_Mascota] PRIMARY KEY CLUSTERED ([MascotaID] ASC)

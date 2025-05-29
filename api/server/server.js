@@ -22,6 +22,8 @@ class Server {
     routes() {
         this.app.use('/api/usuarios', require('../servicios/routes/usuario.routes'));
         this.app.use('/api/ubicaciones', require('../servicios/routes/ubicacion.routes'));
+        this.app.use('/api/mascotas', require('../servicios/routes/mascota.routes'));
+        this.app.use('/api/solicitudAdopciones', require('../servicios/routes/solicitudAdopcion.routes'));
     }
 
     middlewares() {
