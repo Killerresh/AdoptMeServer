@@ -7,6 +7,6 @@ RUN npm install
 COPY ./api ./api
 COPY ./pruebas ./pruebas
 
-ENV NODE_ENV=test
+ENV BASE_URL=http://nginx
 
 CMD [ "npm", "test" ]

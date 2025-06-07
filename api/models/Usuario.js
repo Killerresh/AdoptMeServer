@@ -17,13 +17,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true
     },
-    Ciudad: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
     UbicacionID: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: true
     },
     AccesoID: {
       type: DataTypes.INTEGER,
@@ -36,7 +32,8 @@ module.exports = (sequelize, DataTypes) => {
 
   Usuario.associate = (models) => {
     Usuario.belongsTo(models.Ubicacion, {
-      foreignKey: 'UbicacionID'
+      foreignKey: 'UbicacionID',
+      onDelete: 'SET NULL'
     });
   };
 
