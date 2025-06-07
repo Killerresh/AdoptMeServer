@@ -77,7 +77,7 @@ CREATE TABLE [dbo].[SolicitudAdopcion] (
     [MascotaID] INT NOT NULL,
     [AdoptanteID] INT NOT NULL,
     [FechaSolicitud] DATETIME NULL DEFAULT GETDATE(),
-    [Estado] VARCHAR(20) NULL,
+    [Estado] BIT NULL DEFAULT 0,
     CONSTRAINT [PK_SolicitudAdopcion] PRIMARY KEY CLUSTERED ([SolicitudAdopcionID] ASC)
 );
 GO

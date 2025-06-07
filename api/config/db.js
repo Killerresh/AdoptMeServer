@@ -18,14 +18,14 @@ const sequelize = new Sequelize(
         }
 });
 
-async function conexionConReintentos(reintentos = 10, delay = 10000) {
+async function conexionConReintentos(reintentos = 20, delay = 15000) {
     while (reintentos > 0) {
         try {
             await sequelize.authenticate();
             console.log('Conexión a SQL Server establecida correctamente.');
             return;
         } catch (error) {
-            console.error(`Error al conectar con la base de datos (${10 - reintentos + 1} intento): `, error.message);
+            console.error(`Error al conectar con la base de datos (${20 - reintentos + 1} intento): `, error.message);
             reintentos--;
             if (reintentos === 0) {
                 console.error('No se pudo conectar con la base de datos. Abortando...');

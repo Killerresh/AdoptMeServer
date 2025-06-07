@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { conexionConReintentos }  = require('../config/db');
+const bloquearAccesoDireto = require('../middlewares/bloquear-acceso-direto');
 
 class Server {
 
@@ -30,6 +31,7 @@ class Server {
         this.app.use(cors());
         this.app.use(express.json());
         this.app.use(express.static('public'));
+        this.app.use(bloquearAccesoDireto)
         this.app.use('/uploads', express.static(path.join(__dirname, "..", "uploads")));
     }
 

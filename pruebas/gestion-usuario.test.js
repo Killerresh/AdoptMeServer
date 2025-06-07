@@ -1,15 +1,12 @@
 jest.setTimeout(60000);
 const request = require("supertest")
-const Server = require("../api/server/server")
+const BASE_URL = process.env.BASE_URL;
 const { sequelize, conexionConReintentos } = require("../api/config/db");
 const { Usuario, Ubicacion } = require('../api/models');
-
-let app;
 
 beforeAll(async () => {
     await conexionConReintentos();
     await sequelize.sync();
-    app = new Server().app;
 });
 
 afterAll(async () => {
@@ -28,7 +25,7 @@ afterAll(async () => {
 
 describe('Pruebas de gestión de usuarios', () => {
     test('Debe registrar una ubicación', async () => {
-        const res = await request(app)
+        const res = await request(BASE_URL)
             .post('/api/ubicaciones')
             .send({
                 Longitud: '34.123423',
@@ -40,7 +37,7 @@ describe('Pruebas de gestión de usuarios', () => {
     });
 
     test('Debe registrar un nuevo usuario', async () => {
-        const res = await request(app)
+        const res = await request(BASE_URL)
             .post('/api/usuarios')
             .send({
                 Nombre: 'Prueba',
@@ -57,7 +54,7 @@ describe('Pruebas de gestión de usuarios', () => {
     });
 
     test('Debe obtener todos los usuarios', async () => {
-        const res = await request(app).get('/api/usuarios');
+        const res = await request(BASE_URL).get('/api/usuarios');
         expect(res.statusCode).toBe(200);
         expect(Array.isArray(res.body)).toBe(true);
     });
