@@ -8,4 +8,4 @@ RUN npm install -g nodemon
 COPY . .
 
 EXPOSE 3000
-CMD [ "nodemon", "app.js" ]
+CMD [ "nodemon", "--legacy-watch", "app.js" ]

@@ -1,4 +1,5 @@
-const { Acceso, Usuario, sequelize } = require('../../models');
+const bcrypt = require('bcrypt');
+const { Acceso, Usuario, Ubicacion, sequelize } = require('../../models');
 
 exports.obtenerUsuarios = async (req, res) => {
     try {
@@ -14,7 +15,10 @@ exports.registrarUsuario = async (req, res) => {
     const t = await sequelize.transaction();
 
     try {
-        const { Nombre, Telefono, Ciudad, UbicacionID, Correo, ContrasenaHash, EsAdmin } = req.body;
+        const { Nombre, Telefono, UbicacionUsuario, Correo, Contrasena, EsAdmin } = req.body;
+
+        const saltRounds = 10;
+        const ContrasenaHash = await bcrypt.hash(Contrasena, saltRounds);
 
         const nuevoAcceso = await Acceso.create({
             Correo,
@@ -22,11 +26,17 @@ exports.registrarUsuario = async (req, res) => {
             EsAdmin: EsAdmin ?? false
         }, { transaction: t});
 
-        const nuevoUsuario = await Usuario.create({
+        let ubicacionId = null;
+
+        if (UbicacionUsuario) {
+            const nuevaUbicacion = await Ubicacion.create(UbicacionUsuario, { transaction: t });
+            ubicacionId = nuevaUbicacion.UbicacionID;
+        }
+
+        await Usuario.create({
             Nombre,
             Telefono, 
-            Ciudad,
-            UbicacionID,
+            UbicacionID: ubicacionId,
             AccesoID: nuevoAcceso.AccesoID
         }, { transaction: t });
 

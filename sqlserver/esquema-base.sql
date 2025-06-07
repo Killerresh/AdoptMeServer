@@ -5,8 +5,11 @@
 -- Tabla Ubicacion
 CREATE TABLE [dbo].[Ubicacion] (
     [UbicacionID] INT IDENTITY(1,1) NOT NULL,
-    [Longitud] DECIMAL(9, 6) NOT NULL,
-    [Latitud] DECIMAL(9, 6) NOT NULL,
+    [Longitud] DECIMAL(19, 13) NULL,
+    [Latitud] DECIMAL(19, 13) NULL,
+    [Ciudad] VARCHAR(100) NULL,
+    [Estado] VARCHAR(100) NULL,
+    [Pais] VARCHAR(100) NULL,
     CONSTRAINT [PK_Ubicacion] PRIMARY KEY CLUSTERED ([UbicacionID] ASC)
 );
 GO
@@ -17,7 +20,6 @@ CREATE TABLE [dbo].[Usuario] (
     [Nombre] VARCHAR(100) NOT NULL,
     [FechaRegistro] DATETIME NULL DEFAULT GETDATE(),
     [Telefono] VARCHAR(15) NULL,
-    [Ciudad] VARCHAR(100) NULL,
     [UbicacionID] INT NULL,
     [AccesoID] INT NOT NULL,
     CONSTRAINT [PK_Usuario] PRIMARY KEY CLUSTERED ([UsuarioID] ASC)
@@ -96,6 +98,7 @@ GO
 ALTER TABLE [dbo].[Usuario]
 ADD CONSTRAINT [FK_Usuario_Ubicacion] FOREIGN KEY ([UbicacionID])
 REFERENCES [dbo].[Ubicacion] ([UbicacionID]);
+ON DELETE SET NULL
 GO
 
 -- FKs para Mascota (PublicadorID, UbicacionID)

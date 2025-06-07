@@ -6,12 +6,24 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true
     },
     Longitud: {
-      type: DataTypes.DECIMAL(10, 7),
-      allowNull: false
+      type: DataTypes.DECIMAL(19, 13),
+      allowNull: true
     },
     Latitud: {
-      type: DataTypes.DECIMAL(10, 7),
-      allowNull: false
+      type: DataTypes.DECIMAL(19, 13),
+      allowNull: true
+    },
+    Ciudad: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    Estado: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    Pais: {
+      type: DataTypes.STRING,
+      allowNull: true
     }
   }, {
     tableName: 'Ubicacion',
