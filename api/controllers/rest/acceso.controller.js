@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const { Acceso } = require('../../models');
+const db = require('../../models');
 const SECRET = process.env.JWT_SECRET;
 
 
@@ -8,13 +7,23 @@ exports.iniciarSesion = async (req, res) => {
     try {
         const { Correo, ContrasenaHash } = req.body;
 
-        const acceso = await Acceso.findOne({ where: { Correo }});
+        const acceso = await db.Acceso.findOne({ 
+            where: { Correo },
+            include: {
+                model: db.Usuario,
+                as: 'Usuario',
+                include: [{
+                    model: db.Ubicacion,
+                    as: 'Ubicacion'
+                }]
+            }
+        });
+
         if (!acceso) {
             return res.status(401).json({ mensaje: 'Correo o contraseña incorrectos' });
         }
 
-        const esValida = await bcrypt.compare(ContrasenaHash, acceso.ContrasenaHash);
-        if (!esValida) {
+        if (ContrasenaHash !== acceso.ContrasenaHash) {
             return res.status(401).json({ mensaje: 'Correo o contraseña incorrectos' });
         }
 
@@ -26,7 +35,13 @@ exports.iniciarSesion = async (req, res) => {
 
         const token = jwt.sign(payload, SECRET, { expiresIn: '1h' });
 
-        res.json({ token });
+        res.status(200).json({ 
+            token,
+            usuario: acceso.Usuario,
+            acceso,
+            esAdmin: acceso.EsAdmin
+        });
+
     } catch(error) {
         console.error('Error al iniciar sesión: ', error);
         res.status(500).json({ error: 'Error al iniciar sesión', detalles: error.message });

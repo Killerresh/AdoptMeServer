@@ -31,8 +31,9 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Ubicacion.associate = (models) => {
-    Ubicacion.hasMany(models.Usuario, {
-      foreignKey: 'UbicacionID'
+    Ubicacion.hasOne(models.Usuario, {
+      foreignKey: 'UbicacionID',
+      as: 'Usuario'
     });
   };
 

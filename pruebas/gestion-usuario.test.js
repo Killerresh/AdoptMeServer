@@ -38,18 +38,20 @@ describe('Pruebas de gestión de usuarios', () => {
             .set('x-forwarded-for', '127.0.0.1')
             .send({
                 Nombre: 'Prueba',
-                Correo: `prueba${Date.now()}@mail.com`,
-                Contrasena: 'contrasenaHash',
                 Telefono: '123456789',
-                Ciudad: 'Xalapa',
-                EsAdmin: false,
-                UbicacionUsuario:
+                Ubicacion:
                     {
                         Longitud: 4512.1567342894516,
                         Latitud: 2437.5134278461275,
                         Ciudad: 'Xalapa',
                         Estado: 'Veracruz',
                         Pais: 'Mexico'
+                    },
+                Acceso:
+                    {
+                        Correo: `prueba${Date.now()}@mail.com`,
+                        ContrasenaHash: 'contrasenaHash',
+                        EsAdmin: false
                     }
             });
 

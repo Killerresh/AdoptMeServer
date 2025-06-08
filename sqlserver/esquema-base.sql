@@ -20,6 +20,7 @@ CREATE TABLE [dbo].[Usuario] (
     [Nombre] VARCHAR(100) NOT NULL,
     [FechaRegistro] DATETIME NULL DEFAULT GETDATE(),
     [Telefono] VARCHAR(15) NULL,
+    [UrlFoto] VARCHAR(255) NULL,
     [UbicacionID] INT NULL,
     [AccesoID] INT NOT NULL,
     CONSTRAINT [PK_Usuario] PRIMARY KEY CLUSTERED ([UsuarioID] ASC)
@@ -41,7 +42,7 @@ CREATE TABLE [dbo].[Mascota] (
     [Nombre] VARCHAR(45) NOT NULL,
     [Especie] VARCHAR(50) NOT NULL,
     [Raza] VARCHAR(100) NOT NULL,
-    [Edad] TINYINT NOT NULL,
+    [Edad] VARCHAR(100) NOT NULL,
     [Sexo] VARCHAR(10) NOT NULL,
     [Tamaño] VARCHAR(10) NOT NULL,
     [Descripcion] VARCHAR(MAX) NULL,

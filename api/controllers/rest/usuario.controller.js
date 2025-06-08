@@ -1,4 +1,3 @@
-const bcrypt = require('bcrypt');
 const { Acceso, Usuario, Ubicacion, sequelize } = require('../../models');
 
 exports.obtenerUsuarios = async (req, res) => {
@@ -15,10 +14,14 @@ exports.registrarUsuario = async (req, res) => {
     const t = await sequelize.transaction();
 
     try {
-        const { Nombre, Telefono, UbicacionUsuario, Correo, Contrasena, EsAdmin } = req.body;
+        const { Nombre, Telefono, Ubicacion: UbicacionUsuario, Acceso: AccesoUsuario } = req.body;
+        const { Correo, ContrasenaHash, EsAdmin } = AccesoUsuario;
 
-        const saltRounds = 10;
-        const ContrasenaHash = await bcrypt.hash(Contrasena, saltRounds);
+        const correoExistente = await Acceso.findOne({ where: { Correo } });
+        if (correoExistente) {
+            await t.rollback();
+            return res.status(409).json({ error: 'El correo ya está registrado' });
+        }
 
         const nuevoAcceso = await Acceso.create({
             Correo,
