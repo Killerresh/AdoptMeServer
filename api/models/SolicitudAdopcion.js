@@ -29,12 +29,14 @@ module.exports = (sequelize, DataTypes) => {
 
   SolicitudAdopcion.associate = (models) => {
     SolicitudAdopcion.belongsTo(models.Mascota, {
-      foreignKey: 'MascotaID'
+      foreignKey: 'MascotaID',
+      as: 'Mascota'
     });
   };
   SolicitudAdopcion.associate = (models) => {
     SolicitudAdopcion.belongsTo(models.Usuario, {
-      foreignKey: 'AdoptanteID'
+      foreignKey: 'AdoptanteID',
+      as: 'Adoptante'
     });
   };
 

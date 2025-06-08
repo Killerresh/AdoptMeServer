@@ -27,8 +27,10 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Acceso.associate = (models) => {
-    Acceso.hasMany(models.Usuario, {
-      foreignKey: 'AccesoID'
+    Acceso.hasOne(models.Usuario, {
+      foreignKey: 'AccesoID',
+      as: 'Usuario',
+      onDelete: 'CASCADE'
     });
   };
 

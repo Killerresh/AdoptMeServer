@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     Edad: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false
     },
     Sexo: {
@@ -48,18 +48,21 @@ module.exports = (sequelize, DataTypes) => {
 
   Mascota.associate = (models) => {
     Mascota.belongsTo(models.Usuario, {
-      foreignKey: 'PublicadorID'
+      foreignKey: 'PublicadorID',
+      as: 'Publicador'
     });
   };
   Mascota.associate = (models) => {
     Mascota.belongsTo(models.Ubicacion, {
-      foreignKey: 'UbicacionID'
+      foreignKey: 'UbicacionID',
+      as: 'Ubicacion'
     });
   };
 
   Mascota.associate = (models) => {
     Mascota.hasMany(models.SolicitudAdopcion, {
-      foreignKey: 'MascotaID'
+      foreignKey: 'MascotaID',
+      as: 'Mascota'
     });
   };
 
