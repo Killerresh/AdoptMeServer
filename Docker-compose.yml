@@ -22,6 +22,7 @@ services:
     tty: true
     depends_on:
       - sqlserver
+      - redis
     env_file:
       - .env
   pruebas:
@@ -33,6 +34,11 @@ services:
       - sqlserver
     env_file:
       - .env
+  redis:
+    image: redis:7
+    container_name: redis
+    ports: 
+      - "6379:6379"
   sqlserver:
     build: 
       context: ./sqlserver

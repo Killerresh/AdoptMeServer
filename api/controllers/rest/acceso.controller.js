@@ -38,7 +38,6 @@ exports.iniciarSesion = async (req, res) => {
         res.status(200).json({ 
             token,
             usuario: acceso.Usuario,
-            acceso,
             esAdmin: acceso.EsAdmin
         });
 
