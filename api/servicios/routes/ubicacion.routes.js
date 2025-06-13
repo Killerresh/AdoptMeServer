@@ -3,7 +3,6 @@ const router = express.Router();
 const ubicacionController = require('../../controllers/rest/ubicacion.controller');
 const autenticarTokenConRoles = require('../../middlewares/authMiddleware');
 
-router.put('/:id/ubicacion', autenticarTokenConRoles(), ubicacionController.actualizarUbicacion);
-router.get('/cercanos', autenticarTokenConRoles(), ubicacionController.obtenerSolicitudesAdopcionCercanas);
+router.put('/:id', autenticarTokenConRoles(), ubicacionController.actualizarUbicacion);
 
 module.exports = router;

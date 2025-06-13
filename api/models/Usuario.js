@@ -45,6 +45,17 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'AccesoID',
       as: 'Acceso'
     });
+
+    Usuario.hasMany(models.Mensaje, {
+      foreignKey: 'RemitenteID',
+      as: 'MensajesEnviados'
+    });
+
+    Usuario.hasMany(models.Mensaje, {
+      foreignKey: 'ReceptorID',
+      as: 'MensajesRecibidos'
+    });
+    
   };
 
   return Usuario;

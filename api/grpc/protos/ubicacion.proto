@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package ubicacion;
+
+service ServicioUbicacion {
+  rpc ActualizarUbicacion (Ubicacion) returns (Empty);
+  rpc ObtenerSolicitudesCercanas (Ubicacion) returns (SolicitudesCercanas);
+}
+
+message Ubicacion {
+  int32 usuarioId = 1;
+  double longitud = 2;
+  double latitud = 3;
+}
+
+message SolicitudCercana {
+  int32 solicitudAdopcionId = 1;
+  double distancia = 2;
+  double longitud = 3;
+  double latitud = 4;
+}
+
+message SolicitudesCercanas {
+  repeated SolicitudCercana resultados = 1;
+}
+
+message Empty {}

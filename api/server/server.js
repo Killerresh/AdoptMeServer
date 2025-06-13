@@ -2,8 +2,9 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { conexionConReintentos }  = require('../config/db');
+const { conexionConReintentos, getDb }  = require('../config/db');
 const bloquearAccesoDireto = require('../middlewares/bloquear-acceso-direto');
+const { iniciarServiciosGrpc } = require('../grpc/grpcServer');
 
 class Server {
 
@@ -21,7 +22,14 @@ class Server {
 
     async start() {
         await this.init();
-        this.listen();
+
+        const httpServer = require('http').createServer(this.app);
+        httpServer.listen(this.port, () => {
+            console.log(`API Express corriendo en puerto ${this.port}`);
+        });
+        
+        const db = getDb();
+        iniciarServiciosGrpc(db);
     }
 
     routes() {
@@ -44,12 +52,6 @@ class Server {
         this.app.use((err, req, res, next) => {
             console.error(err.stack);
             res.status(500).json({ error: 'Ocurrió un error en el servidor' });
-        });
-    }
-
-    listen() {
-        this.app.listen(this.port, () => {
-            console.log(`Server listening on port ${this.port}`)
         });
     }
 
