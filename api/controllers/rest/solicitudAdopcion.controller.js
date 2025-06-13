@@ -111,3 +111,21 @@ exports.eliminarSolicitudAdopcion = async (req, res) => {
     res.status(500).json({ error: 'Error al eliminar la solicitud de adopción', detalles: error.message });
   }
 };
+
+exports.obtenerSolicitudAdopcionPorId = async (req, res) => {
+  const db = getDb();
+  const { id } = req.params;
+
+  try {
+    const solicitudAdopcion = await db.SolicitudAdopcion.findByPk(id);
+
+    if (!solicitudAdopcion) {
+      return res.status(404).json({ mensaje: 'Solicitud de adopción no encontrada' });
+    }
+
+    res.status(200).json(solicitudAdopcion);
+  } catch (error) {
+    console.error('Error al obtener la solicitud de adopcion: ', error);
+    res.status(500).json({ error: 'Error al obtener la solicitud de adopción', detalles: error.message });
+  }
+};

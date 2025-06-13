@@ -20,9 +20,16 @@ module.exports = (sequelize, DataTypes) => {
     },
     AdoptanteID: {
       type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    PublicadorID: {
+      type: DataTypes.INTEGER,
       allowNull: false
-    }
-      }, {
+    },
+    UbicacionID: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    }}, {
     tableName: 'SolicitudAdopcion',
     timestamps: false
   });
@@ -32,11 +39,20 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'MascotaID',
       as: 'Mascota'
     });
-  };
-  SolicitudAdopcion.associate = (models) => {
+
     SolicitudAdopcion.belongsTo(models.Usuario, {
       foreignKey: 'AdoptanteID',
       as: 'Adoptante'
+    });
+
+    SolicitudAdopcion.belongsTo(models.Usuario, {
+      foreignKey: 'PublicadorID',
+      as: 'Publicador'
+    });
+
+    SolicitudAdopcion.belongsTo(models.Ubicacion, {
+      foreignKey: 'UbicacionID',
+      as: 'Ubicacion'
     });
   };
 

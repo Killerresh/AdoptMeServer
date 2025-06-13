@@ -5,5 +5,6 @@ const solicitudAdopcionController = require('../../controllers/rest/solicitudAdo
 router.get('/', solicitudAdopcionController.obtenerSolicitudAdopciones);
 router.post('/', solicitudAdopcionController.registrarSolicitudAdopcion);
 router.delete('/:id', solicitudAdopcionController.eliminarSolicitudAdopcion);
+router.get('/:id', solicitudAdopcionController.obtenerSolicitudAdopcionPorId);
 
 module.exports = router;

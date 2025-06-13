@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package multimedia;
+
+service ServicioMultimedia {
+  rpc SubirMultimedia (stream Chunk) returns (Estado);
+  rpc BajarMultimedia (SolicitudMultimedia) returns (stream Chunk);
+}
+
+message Chunk {
+  string nombreArchivo = 1;
+  bytes data = 2;
+}
+
+message Estado {
+  bool exito = 1;
+  string mensaje = 2;
+}
+
+message SolicitudMultimedia {
+  string multimediaId = 1;
+}
