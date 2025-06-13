@@ -74,6 +74,7 @@ async function eliminarUbicacionUsuario(usuarioId) {
 
 module.exports = {
     actualizarUbicacionUsuario,
+    registrarUbicacionSolicitudAdopcion,
     obtenerUbicacionesCercanas,
     eliminarUbicacionUsuario
 };

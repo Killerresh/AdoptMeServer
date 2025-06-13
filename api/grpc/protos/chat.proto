@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package chat;
+
+service ServicioChat {
+    rpc PublicarMensaje (MensajeChat) returns (Empty);
+    rpc SuscribirMensajes (Empty) returns (stream MensajeChat);
+    rpc ObtenerMensajes (SolicitudMensajes) returns (RespuestaMensajes);
+    rpc ObtenerContactos (SolicitudObtenerContactos) returns (RespuestaContactos);
+}
+
+message MensajeChat {
+    int32 remitenteID = 1;
+    int32 receptorID = 2;
+    string contenido = 3;
+    string fecha = 4;
+}
+
+message SolicitudMensajes {
+  int32 usuarioID = 1;
+  int32 otroUsuarioID = 2;
+}
+
+message RespuestaMensajes {
+  repeated MensajeChat mensajes = 1;
+}
+
+message SolicitudObtenerContactos {
+  int32 usuarioID = 1;
+}
+
+message RespuestaContactos {
+  repeated Usuario contactos = 1;
+}
+
+message Usuario {
+  int32 usuarioID = 1;
+  string nombre = 2;
+}
+
+message Empty {}

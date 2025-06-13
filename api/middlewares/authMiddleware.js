@@ -4,24 +4,18 @@ const SECRET = process.env.JWT_SECRET;
 function autenticarTokenConRoles(rolesPermitidos = []) {
   return (req, res, next) => {
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
+    const usuario = verificarJWT(authHeader);
 
-    if (!token) {
-      return res.status(401).json({ mensaje: 'Token requerido' });
+    if (!usuario) {
+      return res.status(401).json({ mensaje: 'Token inválido' });
     }
 
-    jwt.verify(token, SECRET, (err, usuario) => {
-      if (err) {
-        return res.status(403).json({ mensaje: 'Token inválido' });
-      }
+    if (rolesPermitidos.length && !rolesPermitidos.includes(usuario.rol)) {
+      return res.status(403).json({ mensaje: 'Acceso denegado' });
+    }
 
-      if (rolesPermitidos.length > 0 && !rolesPermitidos.includes(usuario.rol)) {
-        return res.status(403).json({ mensaje: 'No tienes permiso para acceder a este recurso' });
-      }
-
-      req.usuario = usuario;
-      next();
-    });
+    req.usuario = usuario;
+    next();
   };
 }
 

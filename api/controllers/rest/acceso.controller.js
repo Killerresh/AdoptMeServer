@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
-const db = require('../../models');
+const { getDb } = require('../../config/db');
+const db = getDb();
 const SECRET = process.env.JWT_SECRET;
 
 
