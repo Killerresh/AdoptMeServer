@@ -20,10 +20,6 @@ module.exports = (sequelize, DataTypes) => {
     Contenido: {
         type: DataTypes.TEXT,
         allowNull: false
-    },
-    Leido: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
     }
   }, {
     tableName: 'Mensaje',

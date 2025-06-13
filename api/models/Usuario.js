@@ -17,10 +17,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true
     },
-    UrlFoto: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
     UbicacionID: {
       type: DataTypes.INTEGER,
       allowNull: true
@@ -55,7 +51,21 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'ReceptorID',
       as: 'MensajesRecibidos'
     });
+
+    Usuario.hasMany(models.FotoUsuario, {
+      foreignKey: 'UsuarioID',
+      as: 'Fotos'
+    });
     
+    Usuario.hasMany(models.SolicitudAdopcion, {
+      foreignKey: 'AdoptanteID',
+      as: 'SolicitudesRealizadas'
+    });
+
+    Usuario.hasMany(models.SolicitudAdopcion, {
+      foreignKey: 'PublicadorID',
+      as: 'SolicitudesRecibidas'
+    });
   };
 
   return Usuario;

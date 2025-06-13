@@ -32,14 +32,6 @@ module.exports = (sequelize, DataTypes) => {
     Descripcion: {
       type: DataTypes.STRING,
       allowNull: true
-    },
-    PublicadorID: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    UbicacionID: {
-      type: DataTypes.INTEGER,
-      allowNull: false
     }
   }, {
     tableName: 'Mascota',
@@ -51,21 +43,32 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'PublicadorID',
       as: 'Publicador'
     });
-  };
-  Mascota.associate = (models) => {
+
     Mascota.belongsTo(models.Ubicacion, {
       foreignKey: 'UbicacionID',
       as: 'Ubicacion'
     });
-  };
 
-  Mascota.associate = (models) => {
     Mascota.hasMany(models.SolicitudAdopcion, {
       foreignKey: 'MascotaID',
       as: 'Mascota'
     });
+
+    Mascota.hasMany(models.FotoMascota, {
+      foreignKey: 'MascotaID',
+      as: 'fotos'
+    });
+
+    Mascota.hasMany(models.VideoMascota, {
+      foreignKey: 'MascotaID',
+      as: 'videos'
+    });
+
+    Mascota.hasMany(models.SolicitudAdopcion, {
+      foreignKey: 'MascotaID',
+      as: 'Solicitudes'
+    });
   };
-
-
+  
   return Mascota;
 };

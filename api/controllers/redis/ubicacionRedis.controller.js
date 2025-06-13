@@ -47,9 +47,6 @@ async function obtenerUbicacionesCercanas(Longitud, Latitud) {
             'ASC'
         ]);
 
-
-        console.log(resultados);
-
         return resultados.map(r => ({
             solicitudAdopcionId: r[0].replace("solicitudAdopcion:", ""),
             distancia: parseFloat(r[1]),
@@ -72,9 +69,19 @@ async function eliminarUbicacionUsuario(usuarioId) {
     }
 }
 
+async function eliminarUbicacionSolicitudAdopcion(solicitudAdopcionId) {
+    try {
+        await redis.zRem(keyGeoSolicitudesAdopcion, `solicitudAdopcion:${solicitudAdopcionId}`);
+    } catch (error) {
+        console.error('Error eliminando ubicacion de la solicitudAdopcion: ', error);
+        throw error;
+    }
+}
+
 module.exports = {
     actualizarUbicacionUsuario,
     registrarUbicacionSolicitudAdopcion,
     obtenerUbicacionesCercanas,
-    eliminarUbicacionUsuario
+    eliminarUbicacionUsuario,
+    eliminarUbicacionSolicitudAdopcion
 };
