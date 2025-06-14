@@ -3,20 +3,24 @@ syntax = "proto3";
 package multimedia;
 
 service ServicioMultimedia {
-  rpc SubirMultimedia (stream Chunk) returns (Estado);
-  rpc BajarMultimedia (SolicitudMultimedia) returns (stream Chunk);
+  rpc SubirFotoUsuario(stream ChunkArchivo) returns (RespuestaGeneral);
+  rpc SubirFotoMascota(stream ChunkArchivo) returns (RespuestaGeneral);
+  rpc SubirVideoMascota(stream ChunkArchivo) returns (RespuestaGeneral);
 }
 
-message Chunk {
-  string nombreArchivo = 1;
-  bytes data = 2;
+message ChunkArchivo {
+  oneof contenido {
+    Metadata metadata = 1;
+    bytes chunk = 2;
+  }
 }
 
-message Estado {
+message Metadata {
+  int32 idReferencia = 1;
+  string nombreArchivo = 2;
+}
+
+message RespuestaGeneral {
   bool exito = 1;
   string mensaje = 2;
-}
-
-message SolicitudMultimedia {
-  string multimediaId = 1;
 }

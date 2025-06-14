@@ -29,7 +29,8 @@ exports.iniciarSesion = async (req, res) => {
         }
 
         const payload = {
-            id: acceso.AccesoID, 
+            AccesoID: acceso.AccesoID, 
+            UsuarioID: acceso.Usuario?.UsuarioID,
             correo: acceso.Correo,
             rol: acceso.EsAdmin ? 'Admin' : 'Usuario'
         };
@@ -43,7 +44,9 @@ exports.iniciarSesion = async (req, res) => {
         });
 
     } catch(error) {
-        console.error('Error al iniciar sesión: ', error);
-        res.status(500).json({ error: 'Error al iniciar sesión', detalles: error.message });
+        console.error('Error al iniciar sesión: ', error.message);
+        console.error(error.stack);
+
+        res.status(500).json({ error: 'Error al iniciar sesión'});
     }
 };

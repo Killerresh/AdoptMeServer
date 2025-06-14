@@ -7,8 +7,10 @@ exports.obtenerMascotas = async (req, res) => {
     const mascotas = await db.Mascota.findAll();
     res.json(mascotas);
   } catch (error) {
-    console.error('Error al obtener las mascotas: ', error);
-    res.status(500).json({ error: 'Error al obtener las mascotas', detalles: error.message });
+    console.error('Error al obtener las mascotas: ', error.message);
+    console.error(error.stack);
+
+    res.status(500).json({ error: 'Error al obtener las mascotas' });
   }
 };
 
@@ -49,7 +51,9 @@ exports.modificarMascota = async (req, res) => {
 
     res.status(200).json({ mensaje: 'Mascota actualizada correctamente', mascota });
   } catch (error) {
-    console.error('Error al modificar mascota:', error);
-    res.status(500).json({ error: 'Error al actualizar la mascota', detalles: error.message });
+    console.error('Error al modificar mascota:', error.message);
+    console.error(error.stack);
+
+    res.status(500).json({ error: 'Error al actualizar la mascota' });
   }
 };

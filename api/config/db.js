@@ -22,7 +22,7 @@ function obtenerSequelize() {
           trustServerCertificate: true
         }
       },
-      logging: console.log
+      logging: false
     }
   );
 }

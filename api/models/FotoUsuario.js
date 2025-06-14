@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
   const FotoUsuario = sequelize.define('FotoUsuario', {
-    FotoID: {
+    FotoUsuarioID: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true

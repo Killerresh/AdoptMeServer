@@ -1,6 +1,3 @@
-const jwt = require('jsonwebtoken');
-const SECRET = process.env.JWT_SECRET;
-
 function autenticarTokenConRoles(rolesPermitidos = []) {
   return (req, res, next) => {
     const authHeader = req.headers['authorization'];

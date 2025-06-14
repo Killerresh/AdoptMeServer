@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node app.js",
-    "test": "cross-env NODE_ENV=test jest --runInBand"
+    "test": "cross-env NODE_ENV=test jest --runInBand",
+    "test:coverage": "cross-env NODE_ENV=test jest --coverage"
   },
   "jest": {
     "roots": [

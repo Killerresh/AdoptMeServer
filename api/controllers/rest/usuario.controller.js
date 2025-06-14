@@ -1,5 +1,8 @@
+const fs = require('fs');
+const path = require('path');
 const { getDb } = require('../../config/db');
 const { actualizarUbicacionUsuario } = require('../redis/ubicacionRedis.controller');
+const verificarJWT = require('../../middlewares/verificarJWT');
 
 exports.obtenerUsuarios = async (req, res) => {
   try {
@@ -7,8 +10,10 @@ exports.obtenerUsuarios = async (req, res) => {
     const usuarios = await db.Usuario.findAll();
     res.json(usuarios);
   } catch (error) {
-    console.error('Error al obtener los usuarios: ', error);
-    res.status(500).json({ error: 'Error al obtener los usuarios', detalles: error.message });
+    console.error('Error al obtener los usuarios: ', error.message);
+    console.error(error.stack);
+
+    res.status(500).json({ error: 'Error al obtener los usuarios' });
   }
 };
 
@@ -67,7 +72,48 @@ exports.registrarUsuario = async (req, res) => {
 
   } catch (error) {
     if (t) await t.rollback();
-    console.error('Error al crear al usuario: ', error);
-    res.status(500).json({ error: 'Error al guardar al usuario', detalles: error.message });
+
+    console.error('Error al crear al usuario: ', error.message);
+    console.error(error.stack);
+
+    res.status(500).json({ error: 'Error al guardar al usuario' });
+  }
+};
+
+exports.obtenerFotoUsuario = async (req, res) => {
+  try {
+    console.log("Obteniendo foto");
+    const token = req.headers['authorization'];
+    const usuario = verificarJWT(token);
+
+    if (!usuario) {
+      return res.status(401).json({ error: 'Token inválido o no enviado' });
+    }
+
+    const db = getDb();
+
+    const foto = await db.FotoUsuario.findOne({
+      where: { UsuarioID: usuario.UsuarioID }
+    });
+
+    if (!foto) {
+      console.warn(`No se encontró una foto registrada para el UsuarioID: ${usuario.UsuarioID}`);
+      return res.status(404).json({ error: 'No se encontró foto para el usuario' });
+    }
+
+    const rutaAbsoluta = path.join(__dirname, '../../', foto.UrlFoto);
+
+    if (!fs.existsSync(rutaAbsoluta)) {
+      console.warn('Archivo no existe físicamente en el servidor');
+      return res.status(404).json({ error: 'Archivo de foto no encontrado' });
+    }
+
+    res.sendFile(rutaAbsoluta);
+    console.log("Foto enviada");
+  } catch (error) {
+    console.error('Error al obtener la foto del usuario:', error.message);
+    console.error(error.stack);
+
+    res.status(500).json({ error: 'Error al obtener la foto del usuario' });
   }
 };

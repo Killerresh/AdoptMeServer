@@ -44,7 +44,10 @@ exports.actualizarUbicacion = async (req, res) => {
     res.status(200).json({ mensaje: 'Ubicación registrada correctamente' });
   } catch (error) {
     if (t) await t.rollback();
-    console.error('Error al actualizar la ubicación: ', error);
-    res.status(500).json({ error: 'Error al guardar la ubicación', detalles: error.message });
+
+    console.error('Error al actualizar la ubicación: ', error.message);
+    console.error(error.stack);
+
+    res.status(500).json({ error: 'Error al guardar la ubicación' });
   }
 };
