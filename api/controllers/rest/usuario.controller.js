@@ -18,10 +18,10 @@ exports.obtenerUsuarios = async (req, res) => {
 };
 
 exports.registrarUsuario = async (req, res) => {
-  try {
-    const db = getDb();
-    const t = await db.sequelize.transaction();
+  const db = getDb();
+  const t = await db.sequelize.transaction();
 
+  try {
     const { Nombre, Telefono, Ubicacion: UbicacionUsuario, Acceso: AccesoUsuario } = req.body;
     const { Correo, ContrasenaHash, EsAdmin } = AccesoUsuario;
 
@@ -43,7 +43,14 @@ exports.registrarUsuario = async (req, res) => {
       const longitud = Number(UbicacionUsuario.Longitud);
       const latitud = Number(UbicacionUsuario.Latitud);
 
-      if (isNaN(longitud) || isNaN(latitud)) {
+      const esCoordenadaValida = (
+        !isNaN(latitud) &&
+        !isNaN(longitud) &&
+        latitud >= -90 && latitud <= 90 &&
+        longitud >= -180 && longitud <= 180
+      );
+
+      if (!esCoordenadaValida) {
         await t.rollback();
         return res.status(400).json({ error: 'Coordenadas inválidas' });
       }
@@ -115,5 +122,36 @@ exports.obtenerFotoUsuario = async (req, res) => {
     console.error(error.stack);
 
     res.status(500).json({ error: 'Error al obtener la foto del usuario' });
+  }
+};
+
+exports.actualizarPerfil = async (req, res) => {
+  const db = getDb();
+  const t = await db.sequelize.transaction();
+
+  try {
+    const usuarioId = req.usuario.UsuarioID;
+    const { Nombre, Telefono } = req.body;
+
+    const usuario = await db.Usuario.findByPk(usuarioId, { transaction: t });
+    if (!usuario) {
+      await t.rollback();
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    if (Nombre) usuario.Nombre = Nombre;
+    if (Telefono) usuario.Telefono = Telefono;
+
+    await usuario.save({ transaction: t });
+    await t.commit();
+
+    res.status(200).json({ mensaje: 'Perfil actualizado correctamente' });
+  } catch (error) {
+    await t.rollback();
+
+    console.error('Error al actualizar perfil:', error.message);
+    console.error(error.stack);
+
+    res.status(500).json({ error: 'Error al actualizar el perfil' });
   }
 };
