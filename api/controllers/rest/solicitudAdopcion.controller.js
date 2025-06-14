@@ -22,11 +22,11 @@ exports.registrarSolicitudAdopcion = async (req, res) => {
   try {
     const {
       Estado, AdoptanteID,
-      Nombre, Especie, Raza, Edad, Sexo, Tamaño, Descripcion, PublicadorID, UbicacionID
+      Nombre, Especie, Raza, Edad, Sexo, Tamaño, Descripcion, PublicadorID, UbicacionAdopcion
     } = req.body;
 
     // Validar datos requeridos
-    if (!AdoptanteID || !PublicadorID || !UbicacionID) {
+    if (!AdoptanteID || !PublicadorID) {
       await t.rollback();
       return res.status(400).json({ error: 'Faltan datos obligatorios en la solicitud.' });
     }
@@ -39,24 +39,34 @@ exports.registrarSolicitudAdopcion = async (req, res) => {
       Edad,
       Sexo,
       Tamaño,
-      Descripcion,
-      PublicadorID,
-      UbicacionID,
+      Descripcion
     }, { transaction: t });
+
+    console.log('Creando ubicación...');
+    if (UbicacionAdopcion) {
+      const longitud = Number(UbicacionAdopcion.Longitud);
+      const latitud = Number(UbicacionAdopcion.Latitud);
+
+      if (isNaN(longitud) || isNaN(latitud)) {
+        await t.rollback();
+        return res.status(400).json({ error: 'Coordenadas inválidas' });
+      }
+
+      const nuevaUbicacion = await db.Ubicacion.create(UbicacionAdopcion, { transaction: t });
+      ubicacionId = nuevaUbicacion.UbicacionID;
+    }
 
     console.log('Creando solicitud de adopción...');
     const nuevaSolicitudAdopcion = await db.SolicitudAdopcion.create({
       Estado: Estado ?? false,
       MascotaID: nuevaMascota.MascotaID,
-      AdoptanteID
+      AdoptanteID,
+      PublicadorID,
+      UbicacionID: ubicacionId
     }, { transaction: t });
 
     console.log('Confirmando transacción...');
     await t.commit();
-
-    console.log('Registrando en Redis');
-    const ubicacion = await db.Ubicacion.findByPk(UbicacionID);
-    await registrarUbicacionSolicitudAdopcion(nuevaSolicitudAdopcion.SolicitudAdopcionID, ubicacion.Longitud, ubicacion.Latitud);
 
     res.status(201).json({ mensaje: 'Solicitud de adopción registrada correctamente' });
 
@@ -89,6 +99,7 @@ exports.eliminarSolicitudAdopcion = async (req, res) => {
     }
 
     const mascotaId = solicitud.MascotaID;
+    const ubicacionId = solicitud.UbicacionID;
 
     // Eliminar la solicitud
     await db.SolicitudAdopcion.destroy({
@@ -102,8 +113,14 @@ exports.eliminarSolicitudAdopcion = async (req, res) => {
       transaction: t
     });
 
+    // Eliminar la ubicación asociada
+    await db.Ubicacion.destroy({
+      where: { UbicacionID: ubicacionId },
+      transaction: t
+    });
+
     await t.commit();
-    res.status(200).json({ mensaje: 'Solicitud de adopción y mascota asociada eliminadas correctamente' });
+    res.status(200).json({ mensaje: 'Solicitud de adopción, ubicación y mascota asociada eliminadas correctamente' });
 
   } catch (error) {
     if (t) await t.rollback();

@@ -24,9 +24,7 @@ exports.modificarMascota = async (req, res) => {
     Edad,
     Sexo,
     Tamaño,
-    Descripcion,
-    PublicadorID,
-    UbicacionID
+    Descripcion
   } = req.body;
 
   try {
@@ -44,8 +42,6 @@ exports.modificarMascota = async (req, res) => {
     mascota.Sexo = Sexo ?? mascota.Sexo;
     mascota.Tamaño = Tamaño ?? mascota.Tamaño;
     mascota.Descripcion = Descripcion ?? mascota.Descripcion;
-    mascota.PublicadorID = PublicadorID ?? mascota.PublicadorID;
-    mascota.UbicacionID = UbicacionID ?? mascota.UbicacionID;
 
     await mascota.save();
 

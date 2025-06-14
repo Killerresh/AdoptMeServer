@@ -39,21 +39,6 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Mascota.associate = (models) => {
-    Mascota.belongsTo(models.Usuario, {
-      foreignKey: 'PublicadorID',
-      as: 'Publicador'
-    });
-
-    Mascota.belongsTo(models.Ubicacion, {
-      foreignKey: 'UbicacionID',
-      as: 'Ubicacion'
-    });
-
-    Mascota.hasMany(models.SolicitudAdopcion, {
-      foreignKey: 'MascotaID',
-      as: 'Mascota'
-    });
-
     Mascota.hasMany(models.FotoMascota, {
       foreignKey: 'MascotaID',
       as: 'fotos'
