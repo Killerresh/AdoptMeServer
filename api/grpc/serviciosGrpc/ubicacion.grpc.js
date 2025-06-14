@@ -21,7 +21,8 @@ module.exports = () => {
 
                 callback(null, { resultados });
             } catch (error) {
-                console.error("Error en auth o solicitud:", error);
+                console.error("Error en auth o solicitud:", error.message);
+                console.error(error.stack);
                 callback({
                     code: grpc.status.UNAUTHENTICATED,
                     message: error.message

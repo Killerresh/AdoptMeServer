@@ -1,42 +1,167 @@
 const fs = require('fs');
 const path = require('path');
+const grpc = require('@grpc/grpc-js');
+const verificarJWT = require('../../middlewares/verificarJWT');
 
-module.exports = () => {
-  return {
-    SubirMultimedia: (call, callback) => {
-      const multimediaId = `video_${Date.now()}`; // O usa un ID real
-      const filePath = path.join(__dirname, '..', 'uploads', `${videoId}.mp4`);
-      const writeStream = fs.createWriteStream(filePath);
+const directorios = {
+  fotosUsuarios: path.join(__dirname, '../../multimedia/fotos/usuarios'),
+  fotosMascotas: path.join(__dirname, '../../multimedia/fotos/mascotas'),
+  videosMascotas: path.join(__dirname, '../../multimedia/videos/mascotas'),
+};
 
-      call.on('data', (chunk) => {
-        writeStream.write(chunk.chunk);
+function crearManejadorStream({ directorioDestino, modeloBD, campoFK, campoBD, extensionesPermitidas, subruta }) {
+  return async (call, callback) => {
+    console.log('Inició la subida');
+    let metadata, fileStream, nombreSeguro = '', ruta = '';
+    let errorPrevio = false;
+
+    function terminarConError(grpcError) {
+      if (!errorPrevio) {
+        errorPrevio = true;
+        if (fileStream) {
+          fileStream.destroy();
+        }
+        callback(grpcError);
+        call.end();
+      }
+    }
+
+    try {
+      const token = call.metadata.get('authorization')[0];
+      const usuario = verificarJWT(token);
+      if (!usuario) {
+        return terminarConError({
+          code: grpc.status.UNAUTHENTICATED,
+          message: 'Token inválido o no enviado',
+        });
+      }
+
+      call.on('data', (data) => {
+        if (errorPrevio) return;
+
+        const tipoContenido = data.contenido;
+
+        if (tipoContenido === 'metadata' && data.metadata) {
+          metadata = data.metadata;
+          const extension = path.extname(metadata.nombreArchivo).toLowerCase();
+
+          if (!extensionesPermitidas.includes(extension)) {
+            return terminarConError({
+              code: grpc.status.INVALID_ARGUMENT,
+              message: `Formato no permitido. Solo se permiten: ${extensionesPermitidas.join(', ')}`
+            });
+          }
+
+          nombreSeguro = `${Date.now()}_${metadata.nombreArchivo}`;
+          ruta = path.join(directorioDestino, nombreSeguro);
+          fs.mkdirSync(directorioDestino, { recursive: true });
+          fileStream = fs.createWriteStream(ruta);
+          console.log('Inicio escritura en archivo:', ruta);
+
+        } else if (tipoContenido === 'chunk' && data.chunk) {
+          if (!fileStream || fileStream.destroyed) {
+            console.log('No se puede escribir, fileStream no existe o ya está destruido');
+            return;
+          }
+          fileStream.write(data.chunk);
+
+        } else {
+          console.warn('ChunkArchivo no contiene datos válidos');
+        }
       });
 
-      call.on('end', () => {
-        writeStream.end();
-        callback(null, { ok: true, message: 'Video subido correctamente' });
+
+      call.on('end', async () => {
+        console.log('Stream finalizó (on end)');
+        if (errorPrevio) {
+          console.log('No se procesa porque hubo error previo');
+          return;
+        }
+        if (!fileStream || !metadata || !modeloBD) {
+          console.log('Faltan variables necesarias para continuar');
+          return terminarConError({
+            code: grpc.status.INTERNAL,
+            message: 'Faltan datos para completar la carga',
+          });
+        }
+
+        fileStream.end();
+
+        const urlRelativa = `/multimedia/${subruta}/${nombreSeguro}`;
+
+        try {
+          const registrosAnteriores = await modeloBD.findAll({
+            where: { [campoFK]: metadata.idReferencia }
+          });
+
+          for (const registro of registrosAnteriores) {
+            const rutaAbsoluta = path.join(__dirname, '../../', registro[campoBD]);
+            if (fs.existsSync(rutaAbsoluta)) {
+              fs.unlinkSync(rutaAbsoluta);
+              console.log('Archivo anterior eliminado:', rutaAbsoluta);
+            }
+            await registro.destroy();
+          }
+
+          await modeloBD.create({ [campoFK]: metadata.idReferencia, [campoBD]: urlRelativa });
+
+          console.log('Inserción completada');
+          callback(null, { exito: true, mensaje: 'Archivo guardado correctamente' });
+
+        } catch (errorBD) {
+          console.error('Error al guardar en la base de datos:', errorBD.message);
+          console.error(errorBD.stack);
+          return terminarConError({
+            code: grpc.status.INTERNAL,
+            message: 'Error al guardar el archivo en la base de datos',
+          });
+        }
       });
 
       call.on('error', (err) => {
-        console.error('Error en subida:', err);
-        callback(err);
+        console.error('Error durante la carga:', err);
+        terminarConError({
+          code: grpc.status.INTERNAL,
+          message: err.message,
+        });
       });
-    },
 
-    // Descarga: leemos archivo y enviamos chunks al cliente
-    DescargarVideo: (call) => {
-      const { videoId } = call.request;
-      const filePath = path.join(__dirname, '..', 'uploads', `${videoId}.mp4`);
-
-      const readStream = fs.createReadStream(filePath);
-      readStream.on('data', (chunk) => {
-        call.write({ chunk });
-      });
-      readStream.on('end', () => call.end());
-      readStream.on('error', (err) => {
-        console.error('Error en descarga:', err);
-        call.destroy(err);
+    } catch (err) {
+      console.error('Error general en streaming:', err);
+      console.error(err.stack);
+      terminarConError({
+        code: grpc.status.INTERNAL,
+        message: err.message,
       });
     }
+  };
+}
+
+module.exports = (db) => {
+  return {
+    SubirFotoUsuario: crearManejadorStream({
+      directorioDestino: directorios.fotosUsuarios,
+      modeloBD: db.FotoUsuario,
+      campoFK: 'UsuarioID',
+      campoBD: 'UrlFoto',
+      extensionesPermitidas: ['.jpg', '.jpeg', '.png'],
+      subruta: 'fotos/usuarios',
+    }),
+    SubirFotoMascota: crearManejadorStream({
+      directorioDestino: directorios.fotosMascotas,
+      modeloBD: db.FotoMascota,
+      campoFK: 'MascotaID',
+      campoBD: 'UrlFoto',
+      extensionesPermitidas: ['.jpg', '.jpeg', '.png'],
+      subruta: 'fotos/mascotas',
+    }),
+    SubirVideoMascota: crearManejadorStream({
+      directorioDestino: directorios.videosMascotas,
+      modeloBD: db.VideoMascota,
+      campoFK: 'MascotaID',
+      campoBD: 'UrlVideo',
+      extensionesPermitidas: ['.mp4', '.mov', '.avi'],
+      subruta: 'videos/mascotas',
+    }),
   };
 };

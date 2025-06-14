@@ -55,7 +55,8 @@ async function obtenerUbicacionesCercanas(Longitud, Latitud) {
         }));
 
     } catch (error) {
-        console.error('Error obteniendo ubicaciones cercanas: ', error);
+        console.error('Error obteniendo ubicaciones cercanas: ', error.message);
+        console.error(error.stack);
         throw error;
     }
 }
@@ -64,7 +65,8 @@ async function eliminarUbicacionUsuario(usuarioId) {
     try {
         await redis.zRem(keyGeoUsuarios, `usuario:${usuarioId}`);
     } catch (error) {
-        console.error('Error eliminando ubicacion de usuario: ', error);
+        console.error('Error eliminando ubicacion de usuario: ', error.message);
+        console.error(error.stack);
         throw error;
     }
 }
@@ -73,7 +75,8 @@ async function eliminarUbicacionSolicitudAdopcion(solicitudAdopcionId) {
     try {
         await redis.zRem(keyGeoSolicitudesAdopcion, `solicitudAdopcion:${solicitudAdopcionId}`);
     } catch (error) {
-        console.error('Error eliminando ubicacion de la solicitudAdopcion: ', error);
+        console.error('Error eliminando ubicacion de la solicitudAdopcion: ', error.message);
+        console.error(error.stack);
         throw error;
     }
 }

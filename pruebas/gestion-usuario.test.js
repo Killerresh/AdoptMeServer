@@ -8,8 +8,9 @@ let db;
 
 beforeAll(async () => {
   app = await require("./appTest");
+  await conexionConReintentos();
 
-  db = await conexionConReintentos();
+  db = getDb();
   Usuario = db.Usuario;
   Acceso = db.Acceso;
   Ubicacion = db.Ubicacion;

@@ -9,4 +9,4 @@ COPY ./pruebas ./pruebas
 
 ENV BASE_URL=http://nginx
 
-CMD [ "npm", "test" ]
+CMD [ "npm", "run", "test:coverage" ]

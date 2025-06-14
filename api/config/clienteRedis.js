@@ -2,7 +2,8 @@ const { createClient } = require("redis")
 require("dotenv").config();
 
 const redis = createClient({
-    url: process.env.REDIS_URL
+    url: process.env.REDIS_URL,
+    database: process.env.NODE_ENV === 'test' ? 1 : 0
 }); 
 
 redis.on("error", (err) => console.error("Redis error: ", err));

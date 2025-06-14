@@ -5,5 +5,6 @@ const autenticarTokenConRoles = require('../../middlewares/authMiddleware');
 
 router.get('/', autenticarTokenConRoles(['Admin']), usuarioController.obtenerUsuarios);
 router.post('/', usuarioController.registrarUsuario);
+router.get('/foto-perfil', usuarioController.obtenerFotoUsuario);
 
 module.exports = router;
