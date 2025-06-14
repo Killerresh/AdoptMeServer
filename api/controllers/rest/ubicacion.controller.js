@@ -1,24 +1,26 @@
 const { getDb } = require('../../config/db');
-const { actualizarUbicacionUsuario } = require("../redis/ubicacionRedis.controller");
+const { actualizarUbicacionUsuario, eliminarUbicacionUsuario } = require("../redis/ubicacionRedis.controller");
 
 exports.actualizarUbicacion = async (req, res) => {
   const db = getDb();
   const t = await db.sequelize.transaction();
+  let transaccionCompletada = false;
 
   try {
-    const tokenId = req.usuario.id;
-    const parametroId = parseInt(req.params.id);
-
-    if (tokenId !== parametroId) {
-      await t.rollback();
-      return res.status(403).json({ mensaje: 'No tienes permiso para modificar esta ubicación' });
-    }
+    const tokenId = req.usuario.UsuarioID;
 
     const { Longitud, Latitud, Ciudad, Estado, Pais } = req.body;
-    const lon = Number(Longitud);
-    const lat = Number(Latitud);
+    const latitud = Number(Latitud);
+    const longitud = Number(Longitud);
 
-    if (isNaN(lon) || isNaN(lat)) {
+    const esCoordenadaValida = (
+      !isNaN(latitud) &&
+      !isNaN(longitud) &&
+      latitud >= -90 && latitud <= 90 &&
+      longitud >= -180 && longitud <= 180
+    );
+
+    if (!esCoordenadaValida) {
       await t.rollback();
       return res.status(400).json({ error: 'Coordenadas inválidas' });
     }
@@ -29,8 +31,17 @@ exports.actualizarUbicacion = async (req, res) => {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
+    if (usuario.UbicacionID) {
+      await db.Ubicacion.destroy({
+        where: { UbicacionID: usuario.UbicacionID },
+        transaction: t
+      });
+
+      await eliminarUbicacionUsuario(usuario.UsuarioID);
+    }
+
     const nuevaUbicacion = await db.Ubicacion.create(
-      { Longitud: lon, Latitud: lat, Ciudad, Estado, Pais },
+      { Longitud: longitud, Latitud: latitud, Ciudad, Estado, Pais },
       { transaction: t }
     );
 
@@ -38,12 +49,19 @@ exports.actualizarUbicacion = async (req, res) => {
     await usuario.save({ transaction: t });
 
     await t.commit();
+    transaccionCompletada = true;
 
-    await actualizarUbicacionUsuario(usuario.UsuarioID, lon, lat);
+    await actualizarUbicacionUsuario(usuario.UsuarioID, longitud, latitud);
 
     res.status(200).json({ mensaje: 'Ubicación registrada correctamente' });
   } catch (error) {
-    if (t) await t.rollback();
+    if (!transaccionCompletada) {
+      try {
+        await t.rollback();
+      } catch (rollbackError) {
+        console.error('Error al hacer rollback:', rollbackError);
+      }
+    }
 
     console.error('Error al actualizar la ubicación: ', error.message);
     console.error(error.stack);

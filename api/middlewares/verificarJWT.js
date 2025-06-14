@@ -1,17 +1,21 @@
 const jwt = require('jsonwebtoken');
 const SECRET = process.env.JWT_SECRET;
 
-function verificarJWT(token) {
-  if (!token) return null;
+function verificarJWT(req, res, next) {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Token no proporcionado' });
+  }
+
+  const token = authHeader.slice(7);
 
   try {
-    if (token.startsWith('Bearer ')) {
-      token = token.slice(7);
-    }
-
-    return jwt.verify(token, SECRET);
+    const decoded = jwt.verify(token, SECRET);
+    req.usuario = decoded;
+    next();
   } catch (err) {
-    return null;
+    return res.status(401).json({ error: 'Token inválido' });
   }
 }
 

@@ -1,3 +1,5 @@
+const verificarJWT = require('./verificarJWT');
+
 function autenticarTokenConRoles(rolesPermitidos = []) {
   return (req, res, next) => {
     const authHeader = req.headers['authorization'];
