@@ -1,18 +1,18 @@
 const { obtenerUbicacionesCercanas } = require('../../controllers/redis/ubicacionRedis.controller');
 const grpc = require('@grpc/grpc-js');
-const verificarJWT = require('../../middlewares/verificarJWT');
+const withAuth = require('../interceptores/withAuth');
 
 module.exports = () => {
     return {
-        ObtenerSolicitudesCercanas: async (call, callback) => {
+        ObtenerSolicitudesCercanas: withAuth(async (call, callback) => {
             try {
-                const token = call.metadata.get('authorization')[0];
-                const usuario = verificarJWT(token);
+                const usuarioMetadata = call.metadata.get('usuario');
+                let usuario = call.usuario;
 
                 if (!usuario) {
                     return callback({
                     code: grpc.status.UNAUTHENTICATED,
-                    message: 'Token inválido o no enviado'
+                    message: 'Usuario no autenticado'
                     });
                 }
 
@@ -21,13 +21,14 @@ module.exports = () => {
 
                 callback(null, { resultados });
             } catch (error) {
-                console.error("Error en auth o solicitud:", error.message);
+                console.error("Error al obtener solicitudes cercanas", error.message);
                 console.error(error.stack);
+                
                 callback({
-                    code: grpc.status.UNAUTHENTICATED,
+                    code: grpc.status.INTERNAL,
                     message: error.message
                 });
             }
-        }
+        })
     };
 };

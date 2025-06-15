@@ -208,6 +208,24 @@ describe('Pruebas de gestión de usuarios', () => {
       });
 
     expect(res.statusCode).toBe(401);
+    expect(res.body.error).toBe('Token no proporcionado');
+  });
+
+  test('No debe registrar la ubicación por un token inválido', async () => {
+    const res = await request(app)
+      .put(`/api/ubicaciones`)
+      .set('x-forwarded-for', '127.0.0.1')
+      .set('Authorization', `Bearer token.invalido.1212`)
+      .send({
+        Longitud: -96.932527,
+        Latitud: 19.541620,
+        Ciudad: 'Xalapa',
+        Estado: 'Veracruz',
+        Pais: 'Mexico'
+      });
+
+    expect(res.statusCode).toBe(401);
+    expect(res.body.error).toBe('Token inválido');
   });
 
   test('Debe actualizar los datos de usuario', async () => {
@@ -223,15 +241,4 @@ describe('Pruebas de gestión de usuarios', () => {
     expect(res.statusCode).toBe(200);
   });
 
-  test('No debe actualizar los datos de usuario por token inexistente', async () => {
-    const res = await request(app)
-      .put(`/api/usuarios`)
-      .set('x-forwarded-for', '127.0.0.1')
-      .send({
-        Nombre: 'Pedro',
-        Telefono: '9876543210',
-      });
-
-    expect(res.statusCode).toBe(200);
-  });
 });

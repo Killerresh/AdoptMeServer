@@ -4,19 +4,6 @@ const { getDb } = require('../../config/db');
 const { actualizarUbicacionUsuario } = require('../redis/ubicacionRedis.controller');
 const verificarJWT = require('../../middlewares/verificarJWT');
 
-exports.obtenerUsuarios = async (req, res) => {
-  try {
-    const db = getDb();
-    const usuarios = await db.Usuario.findAll();
-    res.json(usuarios);
-  } catch (error) {
-    console.error('Error al obtener los usuarios: ', error.message);
-    console.error(error.stack);
-
-    res.status(500).json({ error: 'Error al obtener los usuarios' });
-  }
-};
-
 exports.registrarUsuario = async (req, res) => {
   const db = getDb();
   const t = await db.sequelize.transaction();
@@ -90,8 +77,7 @@ exports.registrarUsuario = async (req, res) => {
 exports.obtenerFotoUsuario = async (req, res) => {
   try {
     console.log("Obteniendo foto");
-    const token = req.headers['authorization'];
-    const usuario = verificarJWT(token);
+    const usuario = req.usuario;
 
     if (!usuario) {
       return res.status(401).json({ error: 'Token inválido o no enviado' });

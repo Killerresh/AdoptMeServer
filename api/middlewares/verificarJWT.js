@@ -1,7 +1,19 @@
 const jwt = require('jsonwebtoken');
 const SECRET = process.env.JWT_SECRET;
 
-function verificarJWT(req, res, next) {
+function verificarJWT(...args) {
+  if (args.length === 1 && typeof args[0] === 'string') {
+    const token = args[0];
+    try {
+      return decoded = jwt.verify(token, SECRET);
+    } catch (error) {
+      console.log('Error al verificar token:', error.message);
+      console.log(error.stack)
+      return null;
+    }
+  }
+
+  const [req, res, next] = args;
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
