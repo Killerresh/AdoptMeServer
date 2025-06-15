@@ -21,14 +21,23 @@ exports.registrarSolicitudAdopcion = async (req, res) => {
 
   try {
     const {
-      Estado, AdoptanteID,
-      Nombre, Especie, Raza, Edad, Sexo, Tamaño, Descripcion, PublicadorID, UbicacionAdopcion
+      Estado,
+      AdoptanteID,
+      PublicadorID,
+      Ubicacion: UbicacionAdopcion,
+      Mascota
     } = req.body;
 
-    // Validar datos requeridos
+    const { Nombre, Especie, Raza, Edad, Sexo, Tamaño, Descripcion } = Mascota || {};
+
     if (!AdoptanteID || !PublicadorID) {
       await t.rollback();
       return res.status(400).json({ error: 'Faltan datos obligatorios en la solicitud.' });
+    }
+
+    if (!Nombre || !Especie || !Raza || !Edad || !Sexo || !Tamaño) {
+      await t.rollback();
+      return res.status(400).json({ error: 'Faltan datos obligatorios de la mascota.' });
     }
 
     console.log('Creando mascota...');
@@ -41,6 +50,8 @@ exports.registrarSolicitudAdopcion = async (req, res) => {
       Tamaño,
       Descripcion
     }, { transaction: t });
+
+    let ubicacionId = null;
 
     console.log('Creando ubicación...');
     if (UbicacionAdopcion) {
@@ -83,6 +94,7 @@ exports.registrarSolicitudAdopcion = async (req, res) => {
     res.status(500).json({ error: 'Error al guardar la solicitud de adopción' });
   }
 };
+
 
 exports.eliminarSolicitudAdopcion = async (req, res) => {
   const db = getDb();
