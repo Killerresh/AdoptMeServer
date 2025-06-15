@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const grpc = require('@grpc/grpc-js');
-const verificarJWT = require('../../middlewares/verificarJWT');
+const withAuth = require('../interceptores/withAuth');
 
 const directorios = {
   fotosUsuarios: path.join(__dirname, '../../multimedia/fotos/usuarios'),
@@ -10,7 +10,7 @@ const directorios = {
 };
 
 function crearManejadorStream({ directorioDestino, modeloBD, campoFK, campoBD, extensionesPermitidas, subruta }) {
-  return async (call, callback) => {
+  return withAuth(async (call, callback) => {
     console.log('Inició la subida');
     let metadata, fileStream, nombreSeguro = '', ruta = '';
     let errorPrevio = false;
@@ -27,8 +27,7 @@ function crearManejadorStream({ directorioDestino, modeloBD, campoFK, campoBD, e
     }
 
     try {
-      const token = call.metadata.get('authorization')[0];
-      const usuario = verificarJWT(token);
+      const usuario = call.usuario;
       if (!usuario) {
         return terminarConError({
           code: grpc.status.UNAUTHENTICATED,
@@ -134,7 +133,7 @@ function crearManejadorStream({ directorioDestino, modeloBD, campoFK, campoBD, e
         message: err.message,
       });
     }
-  };
+  });
 }
 
 module.exports = (db) => {

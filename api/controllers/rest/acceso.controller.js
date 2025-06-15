@@ -37,9 +37,17 @@ exports.iniciarSesion = async (req, res) => {
 
         const token = jwt.sign(payload, SECRET, { expiresIn: '1h' });
 
+        const usuarioConAcceso = {
+            ...acceso.Usuario?.toJSON(),
+            Acceso: {
+                Correo: acceso.Correo,
+                EsAdmin: acceso.EsAdmin
+            }
+        };
+
         res.status(200).json({ 
             token,
-            usuario: acceso.Usuario,
+            usuario: usuarioConAcceso,
             esAdmin: acceso.EsAdmin
         });
 
