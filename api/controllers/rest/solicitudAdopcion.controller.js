@@ -8,7 +8,7 @@ exports.obtenerSolicitudAdopciones = async (req, res) => {
     const solicitudAdopciones = await db.SolicitudAdopcion.findAll();
     res.json(solicitudAdopciones);
   } catch (error) {
-    console.error('Error al obtener las solicitudes de adopcion: ', error.message);
+    console.error('Error al obtener las solicitudes de adopcion: ', error);
     console.error(error.stack);
 
     res.status(500).json({ error: 'Error al obtener las solicitudes de adopcion' });
@@ -137,7 +137,7 @@ exports.eliminarSolicitudAdopcion = async (req, res) => {
   } catch (error) {
     if (t) await t.rollback();
 
-    console.error('Error al eliminar la solicitud de adopción: ', error.message);
+    console.error('Error al eliminar la solicitud de adopción: ', error);
     console.error(error.stack);
 
     res.status(500).json({ error: 'Error al eliminar la solicitud de adopción' });
@@ -157,7 +157,7 @@ exports.obtenerSolicitudAdopcionPorId = async (req, res) => {
 
     res.status(200).json(solicitudAdopcion);
   } catch (error) {
-    console.error('Error al obtener la solicitud de adopcion: ', error.message);
+    console.error('Error al obtener la solicitud de adopcion: ', error);
     console.error(error.stack);
 
     res.status(500).json({ error: 'Error al obtener la solicitud de adopción' });

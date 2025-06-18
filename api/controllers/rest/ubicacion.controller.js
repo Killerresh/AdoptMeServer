@@ -63,7 +63,7 @@ exports.actualizarUbicacion = async (req, res) => {
       }
     }
 
-    console.error('Error al actualizar la ubicación: ', error.message);
+    console.error('Error al actualizar la ubicación: ', error);
     console.error(error.stack);
 
     res.status(500).json({ error: 'Error al guardar la ubicación' });

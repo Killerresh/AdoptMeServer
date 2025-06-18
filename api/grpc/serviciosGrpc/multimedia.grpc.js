@@ -159,7 +159,7 @@ module.exports = (db) => {
       modeloBD: db.VideoMascota,
       campoFK: 'MascotaID',
       campoBD: 'UrlVideo',
-      extensionesPermitidas: ['.mp4', '.mov', '.avi'],
+      extensionesPermitidas: ['.mp4'],
       subruta: 'videos/mascotas',
     }),
   };

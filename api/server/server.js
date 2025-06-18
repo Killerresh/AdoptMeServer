@@ -5,13 +5,17 @@ const path = require('path');
 const { conexionConReintentos, getDb }  = require('../config/db');
 const bloquearAccesoDireto = require('../middlewares/bloquear-acceso-direto');
 const { iniciarServiciosGrpc } = require('../grpc/grpcServer');
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
 
 class Server {
 
     constructor() {
         this.app = express();
         this.port = process.env.PORT;
+        this.documentoSwagger = YAML.load(path.join(__dirname, '../swagger.yaml'));
         this.middlewares();
+        this.configuracionSwagger();
     }
 
     async init() {
@@ -52,6 +56,10 @@ class Server {
             console.error(err.stack);
             res.status(500).json({ error: 'Ocurrió un error en el servidor' });
         });
+    }
+
+    configuracionSwagger() {
+        this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(this.documentoSwagger));
     }
 
     getApp() {
