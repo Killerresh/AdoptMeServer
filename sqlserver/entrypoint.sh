@@ -46,6 +46,26 @@ BEGIN
     EXEC sp_addrolemember 'db_owner', '$DB_USER';
 END;"
 
+echo "CORREO_ADMINISTRADOR: $CORREO_ADMINISTRADOR"
+echo "CONTRASENA_ADMINISTRADOR: $CONTRASENA_ADMINISTRADOR"
+echo "NOMBRE_ADMINISTRADOR: $NOMBRE_ADMINISTRADOR"
+
+# Insertar usuario administrador por defecto si no existe
+/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "$SA_PASSWORD" -d "$DB_NAME" -Q "
+IF NOT EXISTS (SELECT 1 FROM [dbo].[Acceso] WHERE Correo = '$CORREO_ADMINISTRADOR')
+BEGIN
+    INSERT INTO [dbo].[Acceso] (Correo, ContrasenaHash, EsAdmin)
+    VALUES ('$CORREO_ADMINISTRADOR', '$CONTRASENA_ADMINISTRADOR', 1);
+
+    DECLARE @AccesoID INT = SCOPE_IDENTITY();
+
+    INSERT INTO [dbo].[Usuario] (Nombre, Telefono, AccesoID)
+    VALUES ('$NOMBRE_ADMINISTRADOR', '0000000000', @AccesoID);
+END;"
+
+echo "Verificando si se insertó el administrador..."
+/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "$SA_PASSWORD" -d "$DB_NAME" -Q "SELECT Correo FROM [dbo].[Acceso];"
+
 echo "Inicialización completada. Manteniendo SQL Server en primer plano..."
 
 touch /var/opt/mssql/data/setup.done

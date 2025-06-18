@@ -67,7 +67,7 @@ exports.registrarUsuario = async (req, res) => {
   } catch (error) {
     if (t) await t.rollback();
 
-    console.error('Error al crear al usuario: ', error.message);
+    console.error('Error al crear al usuario: ', error);
     console.error(error.stack);
 
     res.status(500).json({ error: 'Error al guardar al usuario' });
@@ -104,7 +104,7 @@ exports.obtenerFotoUsuario = async (req, res) => {
     res.sendFile(rutaAbsoluta);
     console.log("Foto enviada");
   } catch (error) {
-    console.error('Error al obtener la foto del usuario:', error.message);
+    console.error('Error al obtener la foto del usuario:', error);
     console.error(error.stack);
 
     res.status(500).json({ error: 'Error al obtener la foto del usuario' });
@@ -135,7 +135,7 @@ exports.actualizarPerfil = async (req, res) => {
   } catch (error) {
     await t.rollback();
 
-    console.error('Error al actualizar perfil:', error.message);
+    console.error('Error al actualizar perfil:', error);
     console.error(error.stack);
 
     res.status(500).json({ error: 'Error al actualizar el perfil' });

@@ -66,6 +66,13 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'PublicadorID',
       as: 'SolicitudesRecibidas'
     });
+
+    Usuario.hasMany(models.Notificacion, {
+      foreignKey: 'UsuarioID',
+      as: 'Notificaciones',
+      onDelete: 'CASCADE'
+    });
+
   };
 
   return Usuario;

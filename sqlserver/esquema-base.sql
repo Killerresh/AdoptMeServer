@@ -100,6 +100,18 @@ CREATE TABLE [dbo].[VideoMascota] (
 );
 GO
 
+-- Tabla Notificacion
+CREATE TABLE [dbo].[Notificacion] (
+    [NotificacionID] INT IDENTITY(1,1) NOT NULL,
+    [UsuarioID] INT NOT NULL,
+    [Tipo] VARCHAR(50) NOT NULL,
+    [Contenido] VARCHAR(MAX) NOT NULL,
+    [FechaCreacion] DATETIME NOT NULL DEFAULT GETDATE(),
+    [Leida] BIT NOT NULL DEFAULT 0,
+    CONSTRAINT [PK_Notificacion] PRIMARY KEY CLUSTERED ([NotificacionID] ASC)
+);
+GO
+
 ----------------------------------------------------
 -- Creación de Claves Foráneas (Foreign Keys - FKs)
 ----------------------------------------------------
@@ -167,6 +179,13 @@ GO
 ALTER TABLE [dbo].[VideoMascota]
 ADD CONSTRAINT [FK_VideoMascota_Mascota] FOREIGN KEY ([MascotaID])
 REFERENCES [dbo].[Mascota] ([MascotaID])
+ON DELETE CASCADE;
+GO
+
+-- FK para Notificacion (UsuarioID)
+ALTER TABLE [dbo].[Notificacion]
+ADD CONSTRAINT [FK_Notificacion_Usuario] FOREIGN KEY ([UsuarioID])
+REFERENCES [dbo].[Usuario] ([UsuarioID])
 ON DELETE CASCADE;
 GO
 

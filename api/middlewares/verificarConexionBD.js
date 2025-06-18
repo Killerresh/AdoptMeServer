@@ -8,6 +8,6 @@ module.exports = async function verificarConexionBD(req, res, next) {
     next();
   } catch (error) {
     console.error('Error de conexión con base de datos:', error.message);
-    return res.status(503).json({ error: 'Base de datos no disponible' });
+    return res.status(503).json({ error: 'Error de conexión con la base de datos' });
   }
 };
