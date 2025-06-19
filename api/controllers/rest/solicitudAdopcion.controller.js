@@ -15,6 +15,35 @@ exports.obtenerSolicitudAdopciones = async (req, res) => {
   }
 };
 
+exports.obtenerSolicitudesPendientes = async (req, res) => {
+  const db = getDb();
+
+  try {
+    const solicitudesPendientes = await db.SolicitudAdopcion.findAll({
+      where: { estado: false }
+    });
+    res.json(solicitudesPendientes);
+  } catch (error) {
+    console.error('Error al obtener solicitudes pendientes: ', error);
+    res.status(500).json({ error: 'Error al obtener solicitudes pendientes' });
+  }
+};
+
+exports.obtenerSolicitudesAceptadas = async (req, res) => {
+  const db = getDb();
+
+  try {
+    const solicitudesAceptadas = await db.SolicitudAdopcion.findAll({
+      where: { estado: true }
+    });
+    res.json(solicitudesAceptadas);
+  } catch (error) {
+    console.error('Error al obtener solicitudes aceptadas: ', error);
+    res.status(500).json({ error: 'Error al obtener solicitudes aceptadas' });
+  }
+};
+
+
 exports.registrarSolicitudAdopcion = async (req, res) => {
   const db = getDb();
   const t = await db.sequelize.transaction();
