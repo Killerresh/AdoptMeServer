@@ -199,3 +199,33 @@ exports.obtenerSolicitudAdopcionPorId = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener la solicitud de adopción' });
   }
 };
+
+exports.obtenerSolicitudesPorPublicador = async (req, res) => {
+  const db = getDb();
+  const { publicadorId } = req.params;
+
+  try {
+    const solicitudes = await db.SolicitudAdopcion.findAll({
+      where: { PublicadorID: publicadorId },
+      include: [
+        {
+          model: db.Mascota,
+          as: 'Mascota',
+          include: [
+            {
+              model: db.FotoMascota,
+              as: 'fotos',
+              limit: 1 
+            }
+          ]
+        }
+      ]
+    });
+
+    res.status(200).json(solicitudes);
+  } catch (error) {
+    console.error('Error al obtener solicitudes del publicador:', error);
+    res.status(500).json({ error: 'Error al obtener las solicitudes' });
+  }
+};
+

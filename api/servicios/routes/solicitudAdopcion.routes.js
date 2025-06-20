@@ -8,5 +8,6 @@ router.get('/aceptadas', solicitudAdopcionController.obtenerSolicitudesAceptadas
 router.post('/', solicitudAdopcionController.registrarSolicitudAdopcion);
 router.delete('/:id', solicitudAdopcionController.eliminarSolicitudAdopcion);
 router.get('/:id', solicitudAdopcionController.obtenerSolicitudAdopcionPorId);
+router.get('/por-publicador/:publicadorId', solicitudAdopcionController.obtenerSolicitudesPorPublicador);
 
 module.exports = router;
