@@ -1,4 +1,5 @@
 const redis = require("../../config/clienteRedis");
+const { getDb } = require('../../config/db');
 
 const keyGeoUsuarios = "usuarios_ubicacion";
 const keyGeoSolicitudesAdopcion = "solicitudesAdopcion_ubicacion"
@@ -16,20 +17,30 @@ async function actualizarUbicacionUsuario(usuarioId, longitud, latitud) {
     }
 }
 
-async function registrarUbicacionSolicitudAdopcion(solicitudAdopcionId, longitud, latitud) {
+async function registrarUbicacionSolicitudAdopcion(solicitudAdopcionId, longitud, latitud, estado, publicadorID) {
     try {
         await redis.geoAdd(keyGeoSolicitudesAdopcion, {
             longitude: parseFloat(longitud),
             latitude: parseFloat(latitud),
             member: `solicitudAdopcion:${solicitudAdopcionId}`
         });
+
+        await redis.set(
+            `solicitudAdopcion:${solicitudAdopcionId}`,
+            JSON.stringify({
+                estado,
+                publicadorId: publicadorID
+            })
+        );
     } catch (error) {
         console.error('Error al registrar la ubicación de solicitud de adopción en Redis: ', error);
         throw error;
     }
+
+
 }
 
-async function obtenerUbicacionesCercanas(Longitud, Latitud) {
+async function obtenerSolicitudesAdopcionCercanas(Longitud, Latitud, UsuarioID) {
     try {
         const resultados = await redis.sendCommand([
             'GEOSEARCH',
@@ -47,11 +58,36 @@ async function obtenerUbicacionesCercanas(Longitud, Latitud) {
             'ASC'
         ]);
 
-        return resultados.map(r => ({
-            solicitudAdopcionId: r[0].replace("solicitudAdopcion:", ""),
-            distancia: parseFloat(r[1]),
-            longitud: parseFloat(r[2][0]),
-            latitud: parseFloat(r[2][1])
+        const ids = resultados.map(r => r[0].replace("solicitudAdopcion:", ""));
+
+        if (ids.length === 0) return [];
+
+        const db = getDb();
+        const solicitudes = await db.SolicitudAdopcion.findAll({
+            where: {
+                SolicitudAdopcionID: ids,
+                Estado: false,
+                PublicadorID: { [db.Sequelize.Op.ne]: UsuarioID }
+            },
+            include: [{
+                model: db.Mascota,
+                as: 'Mascota'
+            }]
+        });
+
+        const coordenadasPorID = {};
+        resultados.forEach(r => {
+            const id = r[0].replace("solicitudAdopcion:", "");
+            coordenadasPorID[id] = {
+                distancia: parseFloat(r[1]),
+                longitud: parseFloat(r[2][0]),
+                latitud: parseFloat(r[2][1])
+            };
+        });
+
+        return solicitudes.map(s => ({
+            solicitud: s,
+            ...coordenadasPorID[s.SolicitudAdopcionID]
         }));
 
     } catch (error) {
@@ -73,7 +109,14 @@ async function eliminarUbicacionUsuario(usuarioId) {
 
 async function eliminarUbicacionSolicitudAdopcion(solicitudAdopcionId) {
     try {
-        await redis.zRem(keyGeoSolicitudesAdopcion, `solicitudAdopcion:${solicitudAdopcionId}`);
+        const keyGeo = keyGeoSolicitudesAdopcion;
+        const member = `solicitudAdopcion:${solicitudAdopcionId}`;
+
+        await redis.zRem(keyGeo, member);
+
+        await redis.del(member);
+
+        console.log(`Solicitud ${solicitudAdopcionId} eliminada de Redis.`);
     } catch (error) {
         console.error('Error eliminando ubicacion de la solicitudAdopcion: ', error.message);
         console.error(error.stack);
@@ -84,7 +127,7 @@ async function eliminarUbicacionSolicitudAdopcion(solicitudAdopcionId) {
 module.exports = {
     actualizarUbicacionUsuario,
     registrarUbicacionSolicitudAdopcion,
-    obtenerUbicacionesCercanas,
+    obtenerSolicitudesAdopcionCercanas,
     eliminarUbicacionUsuario,
     eliminarUbicacionSolicitudAdopcion
 };

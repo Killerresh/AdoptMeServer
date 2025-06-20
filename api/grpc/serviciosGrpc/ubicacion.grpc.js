@@ -1,4 +1,4 @@
-const { obtenerUbicacionesCercanas } = require('../../controllers/redis/ubicacionRedis.controller');
+const { obtenerSolicitudesAdopcionCercanas } = require('../../controllers/redis/ubicacionRedis.controller');
 const grpc = require('@grpc/grpc-js');
 const withAuth = require('../interceptores/withAuth');
 
@@ -17,7 +17,7 @@ module.exports = () => {
                 }
 
                 const { longitud, latitud } = call.request;
-                const resultados = await obtenerUbicacionesCercanas(longitud, latitud);
+                const resultados = await obtenerSolicitudesAdopcionCercanas(longitud, latitud);
 
                 callback(null, { resultados });
             } catch (error) {
