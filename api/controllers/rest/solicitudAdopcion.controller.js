@@ -149,19 +149,16 @@ exports.eliminarSolicitudAdopcion = async (req, res) => {
     const mascotaId = solicitud.MascotaID;
     const ubicacionId = solicitud.UbicacionID;
 
-    // Eliminar la solicitud
     await db.SolicitudAdopcion.destroy({
       where: { SolicitudAdopcionID: id },
       transaction: t
     });
 
-    // Eliminar la mascota asociada
     await db.Mascota.destroy({
       where: { MascotaID: mascotaId },
       transaction: t
     });
 
-    // Eliminar la ubicación asociada
     await db.Ubicacion.destroy({
       where: { UbicacionID: ubicacionId },
       transaction: t

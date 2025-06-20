@@ -1,0 +1,233 @@
+/acceso/iniciar-sesion:
+  post:
+    summary: Iniciar sesión
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              correo:
+                type: string
+              contraseña:
+                type: string
+            required:
+              - correo
+              - contraseña
+    responses:
+      '200':
+        description: Sesión iniciada correctamente
+
+/acceso:
+  patch:
+    summary: Actualizar credenciales de acceso
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              contraseñaActual:
+                type: string
+              nuevaContraseña:
+                type: string
+    responses:
+      '200':
+        description: Acceso actualizado
+
+/mascotas:
+  get:
+    summary: Obtener lista de mascotas
+    responses:
+      '200':
+        description: Lista de mascotas
+
+/mascotas/{id}:
+  get:
+    summary: Obtener mascota por ID
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Mascota encontrada
+  put:
+    summary: Modificar datos de mascota
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+    responses:
+      '200':
+        description: Mascota actualizada
+
+/mascotas/{id}/foto:
+  get:
+    summary: Obtener foto de mascota
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Foto de mascota
+
+/mascotas/{id}/video:
+  get:
+    summary: Obtener video de mascota
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Video de mascota
+
+/solicitudAdopciones:
+  get:
+    summary: Obtener todas las solicitudes
+    responses:
+      '200':
+        description: Lista de solicitudes
+  post:
+    summary: Registrar nueva solicitud de adopción
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SolicitudAdopcion'
+    responses:
+      '201':
+        description: Solicitud registrada
+
+/solicitudAdopciones/pendientes:
+  get:
+    summary: Obtener solicitudes pendientes
+    responses:
+      '200':
+        description: Lista de solicitudes pendientes
+
+/solicitudAdopciones/aceptadas:
+  get:
+    summary: Obtener solicitudes aceptadas
+    responses:
+      '200':
+        description: Lista de solicitudes aceptadas
+
+/solicitudAdopciones/{id}:
+  get:
+    summary: Obtener solicitud por ID
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Solicitud encontrada
+  delete:
+    summary: Eliminar solicitud por ID
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Solicitud eliminada
+
+/solicitudAdopciones/por-publicador/{publicadorId}:
+  get:
+    summary: Listar solicitudes por usuario publicador
+    parameters:
+      - name: publicadorId
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Solicitudes del publicador
+
+/ubicaciones:
+  put:
+    summary: Actualizar ubicación del usuario
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              latitud:
+                type: number
+              longitud:
+                type: number
+    responses:
+      '200':
+        description: Ubicación actualizada
+
+/usuarios:
+  post:
+    summary: Registrar nuevo usuario
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Usuario'
+    responses:
+      '201':
+        description: Usuario registrado
+
+/usuarios/foto-perfil:
+  get:
+    summary: Obtener foto de perfil del usuario
+    security:
+      - bearerAuth: []
+    responses:
+      '200':
+        description: Foto obtenida correctamente
+
+/usuarios:
+  patch:
+    summary: Actualizar perfil de usuario
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Usuario'
+    responses:
+      '200':
+        description: Perfil actualizado

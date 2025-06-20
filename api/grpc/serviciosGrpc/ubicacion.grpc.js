@@ -6,7 +6,6 @@ module.exports = () => {
     return {
         ObtenerSolicitudesCercanas: withAuth(async (call, callback) => {
             try {
-                const usuarioMetadata = call.metadata.get('usuario');
                 let usuario = call.usuario;
 
                 if (!usuario) {
@@ -17,7 +16,7 @@ module.exports = () => {
                 }
 
                 const { longitud, latitud } = call.request;
-                const resultados = await obtenerSolicitudesAdopcionCercanas(longitud, latitud);
+                const resultados = await obtenerSolicitudesAdopcionCercanas(longitud, latitud, usuario.UsuarioID);
 
                 callback(null, { resultados });
             } catch (error) {
