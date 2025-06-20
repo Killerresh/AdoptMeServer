@@ -79,7 +79,7 @@ exports.registrarSolicitudAdopcion = async (req, res) => {
     }, { transaction: t });
 
     await registrarUbicacionSolicitudAdopcion(nuevaSolicitudAdopcion.SolicitudAdopcionID, 
-      longitud, latitud);
+      longitud, latitud, nuevaSolicitudAdopcion.Estado, PublicadorID);
 
     console.log('Confirmando transacción...');  
     await t.commit();
