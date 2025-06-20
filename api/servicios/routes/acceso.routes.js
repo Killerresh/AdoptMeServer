@@ -5,6 +5,6 @@ const verificarJWT = require('../../middlewares/verificarJWT');
 const verificarConexionBD = require('../../middlewares/verificarConexionBD');
 
 router.post('/iniciar-sesion', verificarConexionBD, accesoController.iniciarSesion);
-router.put('/', verificarJWT, verificarConexionBD, accesoController.actualizarAcceso);
+router.patch('/', verificarJWT, verificarConexionBD, accesoController.actualizarAcceso);
 
 module.exports = router;

@@ -7,6 +7,6 @@ const verificarConexionBD = require('../../middlewares/verificarConexionBD');
 
 router.post('/', usuarioController.registrarUsuario);
 router.get('/foto-perfil', verificarJWT, usuarioController.obtenerFotoUsuario);
-router.put('/', verificarJWT, verificarConexionBD, usuarioController.actualizarPerfil);
+router.patch('/', verificarJWT, verificarConexionBD, usuarioController.actualizarPerfil);
 
 module.exports = router;

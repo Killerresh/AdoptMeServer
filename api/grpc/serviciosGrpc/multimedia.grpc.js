@@ -9,7 +9,7 @@ const directorios = {
   videosMascotas: path.join(__dirname, '../../multimedia/videos/mascotas'),
 };
 
-function crearManejadorStream({ directorioDestino, modeloBD, campoFK, campoBD, extensionesPermitidas, subruta }) {
+function crearManejadorStream({ directorioDestino, modeloBD, modeloPadre, campoFK, campoBD, extensionesPermitidas, subruta }) {
   return withAuth(async (call, callback) => {
     console.log('Inició la subida');
     let metadata, fileStream, nombreSeguro = '', ruta = '';
@@ -17,6 +17,7 @@ function crearManejadorStream({ directorioDestino, modeloBD, campoFK, campoBD, e
 
     function terminarConError(grpcError) {
       if (!errorPrevio) {
+        console.error('Terminando con error:', grpcError);
         errorPrevio = true;
         if (fileStream) {
           fileStream.destroy();
@@ -35,37 +36,56 @@ function crearManejadorStream({ directorioDestino, modeloBD, campoFK, campoBD, e
         });
       }
 
-      call.on('data', (data) => {
-        if (errorPrevio) return;
+      call.on('data', async (data) => {
+        try {
+          if (errorPrevio) return;
 
-        const tipoContenido = data.contenido;
+          const tipoContenido = data.contenido;
 
-        if (tipoContenido === 'metadata' && data.metadata) {
-          metadata = data.metadata;
-          const extension = path.extname(metadata.nombreArchivo).toLowerCase();
+          if (tipoContenido === 'metadata' && data.metadata) {
+            metadata = data.metadata;
+            const extension = path.extname(metadata.nombreArchivo).toLowerCase();
 
-          if (!extensionesPermitidas.includes(extension)) {
-            return terminarConError({
-              code: grpc.status.INVALID_ARGUMENT,
-              message: `Formato no permitido. Solo se permiten: ${extensionesPermitidas.join(', ')}`
-            });
+            if (!extensionesPermitidas.includes(extension)) {
+              return terminarConError({
+                code: grpc.status.INVALID_ARGUMENT,
+                message: `Formato no permitido. Solo se permiten: ${extensionesPermitidas.join(', ')}`
+              });
+            }
+
+            if (modeloPadre) {
+              const existePadre = await modeloPadre.findByPk(metadata.idReferencia);
+              if (!existePadre) {
+                return terminarConError({
+                  code: grpc.status.INVALID_ARGUMENT,
+                  message: `El ${campoFK} ${metadata.idReferencia} no existe en la base de datos.`
+                });
+              }
+            }
+
+            nombreSeguro = `${Date.now()}_${metadata.nombreArchivo}`;
+            ruta = path.join(directorioDestino, nombreSeguro);
+            fs.mkdirSync(directorioDestino, { recursive: true });
+            fileStream = fs.createWriteStream(ruta);
+            console.log('Inicio escritura en archivo:', ruta);
+
+          } else if (tipoContenido === 'chunk' && data.chunk) {
+            if (!fileStream || fileStream.destroyed) {
+              console.log('No se puede escribir, fileStream no existe o ya está destruido');
+              return;
+            }
+            fileStream.write(data.chunk);
+
+          } else {
+            console.warn('ChunkArchivo no contiene datos válidos');
           }
 
-          nombreSeguro = `${Date.now()}_${metadata.nombreArchivo}`;
-          ruta = path.join(directorioDestino, nombreSeguro);
-          fs.mkdirSync(directorioDestino, { recursive: true });
-          fileStream = fs.createWriteStream(ruta);
-          console.log('Inicio escritura en archivo:', ruta);
-
-        } else if (tipoContenido === 'chunk' && data.chunk) {
-          if (!fileStream || fileStream.destroyed) {
-            console.log('No se puede escribir, fileStream no existe o ya está destruido');
-            return;
-          }
-          fileStream.write(data.chunk);
-
-        } else {
-          console.warn('ChunkArchivo no contiene datos válidos');
+        } catch (err) {
+          console.error('Error en call.on("data"):', err);
+          terminarConError({
+            code: grpc.status.INTERNAL,
+            message: 'Error procesando los datos del stream'
+          });
         }
       });
 
@@ -76,6 +96,7 @@ function crearManejadorStream({ directorioDestino, modeloBD, campoFK, campoBD, e
           console.log('No se procesa porque hubo error previo');
           return;
         }
+
         if (!fileStream || !metadata || !modeloBD) {
           console.log('Faltan variables necesarias para continuar');
           return terminarConError({
@@ -141,6 +162,7 @@ module.exports = (db) => {
     SubirFotoUsuario: crearManejadorStream({
       directorioDestino: directorios.fotosUsuarios,
       modeloBD: db.FotoUsuario,
+      modeloPadre: db.Usuario,
       campoFK: 'UsuarioID',
       campoBD: 'UrlFoto',
       extensionesPermitidas: ['.jpg', '.jpeg', '.png'],
@@ -149,6 +171,7 @@ module.exports = (db) => {
     SubirFotoMascota: crearManejadorStream({
       directorioDestino: directorios.fotosMascotas,
       modeloBD: db.FotoMascota,
+      modeloPadre: db.Mascota,
       campoFK: 'MascotaID',
       campoBD: 'UrlFoto',
       extensionesPermitidas: ['.jpg', '.jpeg', '.png'],
@@ -157,6 +180,7 @@ module.exports = (db) => {
     SubirVideoMascota: crearManejadorStream({
       directorioDestino: directorios.videosMascotas,
       modeloBD: db.VideoMascota,
+      modeloPadre: db.Mascota,
       campoFK: 'MascotaID',
       campoBD: 'UrlVideo',
       extensionesPermitidas: ['.mp4'],

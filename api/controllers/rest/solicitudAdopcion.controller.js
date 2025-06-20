@@ -59,7 +59,7 @@ exports.registrarSolicitudAdopcion = async (req, res) => {
 
     const { Nombre, Especie, Raza, Edad, Sexo, Tamaño, Descripcion } = Mascota || {};
 
-    if (!AdoptanteID || !PublicadorID) {
+    if (!PublicadorID) {
       await t.rollback();
       return res.status(400).json({ error: 'Faltan datos obligatorios en la solicitud.' });
     }
@@ -81,11 +81,13 @@ exports.registrarSolicitudAdopcion = async (req, res) => {
     }, { transaction: t });
 
     let ubicacionId = null;
+    let latitud = null;
+    let longitud = null;
 
     console.log('Creando ubicación...');
     if (UbicacionAdopcion) {
-      const longitud = Number(UbicacionAdopcion.Longitud);
-      const latitud = Number(UbicacionAdopcion.Latitud);
+      longitud = parseFloat(UbicacionAdopcion.Longitud);
+      latitud = parseFloat(UbicacionAdopcion.Latitud);
 
       if (isNaN(longitud) || isNaN(latitud)) {
         await t.rollback();
@@ -105,10 +107,16 @@ exports.registrarSolicitudAdopcion = async (req, res) => {
       UbicacionID: ubicacionId
     }, { transaction: t });
 
-    console.log('Confirmando transacción...');
-    await t.commit();
+    await registrarUbicacionSolicitudAdopcion(nuevaSolicitudAdopcion.SolicitudAdopcionID, 
+      longitud, latitud);
 
-    res.status(201).json({ mensaje: 'Solicitud de adopción registrada correctamente' });
+    console.log('Confirmando transacción...');  
+    await t.commit();
+    console.log(nuevaMascota.MascotaID);
+    res.status(201).json({ 
+      mensaje: 'Solicitud de adopción registrada correctamente',
+      MascotaID: nuevaMascota.MascotaID
+    });
 
   } catch (error) {
     console.error('Error al crear la solicitud de adopción:', error);
