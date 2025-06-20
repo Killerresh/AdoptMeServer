@@ -11,7 +11,6 @@ exports.obtenerMascotas = async (req, res) => {
   } catch (error) {
     console.error('Error al obtener las mascotas: ', error);
     console.error(error.stack);
-
     res.status(500).json({ error: 'Error al obtener las mascotas' });
   }
 };
@@ -50,7 +49,6 @@ exports.modificarMascota = async (req, res) => {
   } catch (error) {
     console.error('Error al modificar mascota:', error);
     console.error(error.stack);
-
     res.status(500).json({ error: 'Error al actualizar la mascota' });
   }
 };
@@ -70,7 +68,6 @@ exports.obtenerFotoMascota = async (req, res) => {
     }
 
     const db = getDb();
-
     const fotoMascota = await db.FotoMascota.findOne({
       where: { MascotaID }
     });
@@ -92,7 +89,6 @@ exports.obtenerFotoMascota = async (req, res) => {
   } catch (error) {
     console.error('Error al obtener la foto de la mascota:', error);
     console.error(error.stack);
-
     res.status(500).json({ error: 'Error al obtener la foto de la mascota' });
   }
 };
@@ -112,14 +108,13 @@ exports.obtenerVideoMascota = async (req, res) => {
     }
 
     const db = getDb();
-
     const videoMascota = await db.VideoMascota.findOne({
       where: { MascotaID }
     });
 
     if (!videoMascota) {
       console.warn(`No se encontró un video registrado para la MascotaID: ${MascotaID}`);
-      return res.status(404).json({ error: 'No se encontró foto para la mascota' });
+      return res.status(404).json({ error: 'No se encontró video para la mascota' });
     }
 
     const rutaAbsoluta = path.join(__dirname, '../../', videoMascota.UrlVideo);
@@ -154,14 +149,31 @@ exports.obtenerVideoMascota = async (req, res) => {
         'Content-Type': 'video/mp4'
       });
 
-      fs.createReadStream(videoPath).pipe(res);
+      fs.createReadStream(rutaAbsoluta).pipe(res);
     }
 
     console.log("Video enviado");
   } catch (error) {
     console.error('Error al obtener el video de mascota:', error);
     console.error(error.stack);
-
     res.status(500).json({ error: 'Error al obtener el video de mascota' });
+  }
+};
+
+exports.obtenerMascotaPorId = async (req, res) => {
+  const db = getDb();
+  const { id } = req.params;
+
+  try {
+    const mascota = await db.Mascota.findByPk(id);
+
+    if (!mascota) {
+      return res.status(404).json({ error: 'Mascota no encontrada' });
+    }
+
+    res.json(mascota);
+  } catch (error) {
+    console.error('Error al obtener la mascota por ID:', error);
+    res.status(500).json({ error: 'Error al obtener la mascota' });
   }
 };

@@ -18,10 +18,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    AdoptanteID: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
     PublicadorID: {
       type: DataTypes.INTEGER,
       allowNull: false
@@ -38,11 +34,6 @@ module.exports = (sequelize, DataTypes) => {
     SolicitudAdopcion.belongsTo(models.Mascota, {
       foreignKey: 'MascotaID',
       as: 'Mascota'
-    });
-
-    SolicitudAdopcion.belongsTo(models.Usuario, {
-      foreignKey: 'AdoptanteID',
-      as: 'Adoptante'
     });
 
     SolicitudAdopcion.belongsTo(models.Usuario, {

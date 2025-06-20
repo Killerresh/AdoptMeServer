@@ -28,12 +28,13 @@ GO
 
 -- Tabla Acceso 
 CREATE TABLE [dbo].[Acceso] (
-	[AccesoID] INT IDENTITY(1,1) NOT NULL,
-	[Correo] VARCHAR(100) NOT NULL,
-	[ContrasenaHash] VARCHAR(255) NOT NULL,
-	[EsAdmin] BIT NOT NULL DEFAULT 0,
-	CONSTRAINT [PK_Acceso] PRIMARY KEY CLUSTERED ([AccesoID] ASC)
-)
+    [AccesoID] INT IDENTITY(1,1) NOT NULL,
+    [Correo] VARCHAR(100) NOT NULL,
+    [ContrasenaHash] VARCHAR(255) NOT NULL,
+    [EsAdmin] BIT NOT NULL DEFAULT 0,
+    CONSTRAINT [PK_Acceso] PRIMARY KEY CLUSTERED ([AccesoID] ASC)
+);
+GO
 
 -- Tabla Mascota
 CREATE TABLE [dbo].[Mascota] (
@@ -66,7 +67,6 @@ CREATE TABLE [dbo].[SolicitudAdopcion] (
     [FechaSolicitud] DATETIME NULL DEFAULT GETDATE(),
     [Estado] BIT NOT NULL DEFAULT 0,
     [MascotaID] INT NOT NULL,
-    [AdoptanteID] INT NULL,
     [PublicadorID] INT NOT NULL,
     [UbicacionID] INT NOT NULL,
     CONSTRAINT [PK_SolicitudAdopcion] PRIMARY KEY CLUSTERED ([SolicitudAdopcionID] ASC)
@@ -112,6 +112,15 @@ CREATE TABLE [dbo].[Notificacion] (
 );
 GO
 
+-- Tabla Solicitud 
+CREATE TABLE [dbo].[Solicitud] (
+    [SolicitudID] INT IDENTITY(1,1) NOT NULL,
+    [AdoptanteID] INT NOT NULL,
+    [AdopcionID] INT NOT NULL,
+    CONSTRAINT [PK_Solicitud] PRIMARY KEY CLUSTERED ([SolicitudID] ASC)
+);
+GO
+
 ----------------------------------------------------
 -- Creación de Claves Foráneas (Foreign Keys - FKs)
 ----------------------------------------------------
@@ -125,8 +134,8 @@ GO
 -- FK para Usuario (UbicacionID)
 ALTER TABLE [dbo].[Usuario]
 ADD CONSTRAINT [FK_Usuario_Ubicacion] FOREIGN KEY ([UbicacionID])
-REFERENCES [dbo].[Ubicacion] ([UbicacionID]);
-ON DELETE SET NULL
+REFERENCES [dbo].[Ubicacion] ([UbicacionID])
+ON DELETE SET NULL;
 GO
 
 -- FKs para Mensaje (RemitenteID, ReceptorID)
@@ -140,15 +149,10 @@ ADD CONSTRAINT [FK_Mensaje_Receptor] FOREIGN KEY ([ReceptorID])
 REFERENCES [dbo].[Usuario] ([UsuarioID]);
 GO
 
--- FKs para SolicitudAdopcion (MascotaID, AdoptanteID)
+-- FKs para SolicitudAdopcion (MascotaID)
 ALTER TABLE [dbo].[SolicitudAdopcion]
 ADD CONSTRAINT [FK_SolicitudAdopcion_Mascota] FOREIGN KEY ([MascotaID])
 REFERENCES [dbo].[Mascota] ([MascotaID]);
-GO
-
-ALTER TABLE [dbo].[SolicitudAdopcion]
-ADD CONSTRAINT [FK_SolicitudAdopcion_Adoptante] FOREIGN KEY ([AdoptanteID])
-REFERENCES [dbo].[Usuario] ([UsuarioID]);
 GO
 
 ALTER TABLE [dbo].[SolicitudAdopcion]
@@ -187,6 +191,18 @@ ALTER TABLE [dbo].[Notificacion]
 ADD CONSTRAINT [FK_Notificacion_Usuario] FOREIGN KEY ([UsuarioID])
 REFERENCES [dbo].[Usuario] ([UsuarioID])
 ON DELETE CASCADE;
+GO
+
+-- FK para Solicitud (AdoptanteID → Usuario)
+ALTER TABLE [dbo].[Solicitud]
+ADD CONSTRAINT [FK_Solicitud_Adoptante] FOREIGN KEY ([AdoptanteID])
+REFERENCES [dbo].[Usuario] ([UsuarioID]);
+GO
+
+-- FK para Solicitud (AdopcionID → SolicitudAdopcion)
+ALTER TABLE [dbo].[Solicitud]
+ADD CONSTRAINT [FK_Solicitud_Adopcion] FOREIGN KEY ([AdopcionID])
+REFERENCES [dbo].[SolicitudAdopcion] ([SolicitudAdopcionID]);
 GO
 
 PRINT 'Esquema de la base de datos (tablas y claves) creado exitosamente.';

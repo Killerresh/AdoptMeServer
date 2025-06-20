@@ -102,7 +102,6 @@ exports.registrarSolicitudAdopcion = async (req, res) => {
     const nuevaSolicitudAdopcion = await db.SolicitudAdopcion.create({
       Estado: Estado ?? false,
       MascotaID: nuevaMascota.MascotaID,
-      AdoptanteID,
       PublicadorID,
       UbicacionID: ubicacionId
     }, { transaction: t });

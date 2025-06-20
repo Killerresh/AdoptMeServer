@@ -57,7 +57,7 @@ module.exports = (sequelize, DataTypes) => {
       as: 'Fotos'
     });
     
-    Usuario.hasMany(models.SolicitudAdopcion, {
+    Usuario.hasMany(models.Solicitud, {
       foreignKey: 'AdoptanteID',
       as: 'SolicitudesRealizadas'
     });
