@@ -230,7 +230,7 @@ describe('Pruebas de gestión de usuarios', () => {
 
   test('Debe actualizar los datos de usuario', async () => {
     const res = await request(app)
-      .put(`/api/usuarios`)
+      .patch(`/api/usuarios`)
       .set('x-forwarded-for', '127.0.0.1')
       .set('Authorization', `Bearer ${token}`)
       .send({

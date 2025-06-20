@@ -18,6 +18,18 @@ message SolicitudCercana {
   double distancia = 2;
   double longitud = 3;
   double latitud = 4;
+  Mascota mascota = 5;
+}
+
+message Mascota {
+  int32 mascotaId = 1;
+  string nombre = 2;
+  string especie = 3;
+  string raza = 4;
+  string edad = 5;
+  string sexo = 6;
+  string tamano = 7;
+  string descripcion = 8;
 }
 
 message SolicitudesCercanas {

@@ -63,6 +63,7 @@ async function obtenerSolicitudesAdopcionCercanas(Longitud, Latitud, UsuarioID) 
         if (ids.length === 0) return [];
 
         const db = getDb();
+
         const solicitudes = await db.SolicitudAdopcion.findAll({
             where: {
                 SolicitudAdopcionID: ids,
@@ -86,10 +87,21 @@ async function obtenerSolicitudesAdopcionCercanas(Longitud, Latitud, UsuarioID) 
         });
 
         return solicitudes.map(s => ({
-            solicitud: s,
-            ...coordenadasPorID[s.SolicitudAdopcionID]
+            solicitudAdopcionId: s.SolicitudAdopcionID,
+            latitud: coordenadasPorID[s.SolicitudAdopcionID].latitud,
+            longitud: coordenadasPorID[s.SolicitudAdopcionID].longitud,
+            distancia: coordenadasPorID[s.SolicitudAdopcionID].distancia,
+            mascota: {
+                mascotaId: s.Mascota.MascotaID,
+                nombre: s.Mascota.Nombre,
+                especie: s.Mascota.Especie,
+                raza: s.Mascota.Raza,
+                edad: s.Mascota.Edad,
+                sexo: s.Mascota.Sexo,
+                tamano: s.Mascota.Tamaño,
+                descripcion: s.Mascota.Descripcion
+            }
         }));
-
     } catch (error) {
         console.error('Error obteniendo ubicaciones cercanas: ', error.message);
         console.error(error.stack);
