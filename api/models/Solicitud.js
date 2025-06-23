@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
       as: 'Adoptante'
     });
 
-    Solicitud.belongsTo(models.SolicitudAdopcion, {
+    Solicitud.belongsTo(models.Adopcion, {
       foreignKey: 'AdopcionID',
       as: 'Adopcion'
     });

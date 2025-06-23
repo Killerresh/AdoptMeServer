@@ -19,11 +19,6 @@ const server = new grpc.Server();
 
 const servicios = [
     {
-        nombre: 'ServicioChat',
-        protoPath: path.join(grpcDir, '/protos/chat.proto'),
-        implementacion: require('./serviciosGrpc/chat.grpc'),
-    },
-    {
         nombre: 'ServicioUbicacion',
         protoPath: path.join(grpcDir, '/protos/ubicacion.proto'),
         implementacion: require('./serviciosGrpc/ubicacion.grpc'),

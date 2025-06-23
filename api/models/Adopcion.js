@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
-  const SolicitudAdopcion = sequelize.define('SolicitudAdopcion', {
-    SolicitudAdopcionID: {
+  const Adopcion = sequelize.define('Adopcion', {
+    AdopcionID: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true
@@ -26,26 +26,26 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false
     }}, {
-    tableName: 'SolicitudAdopcion',
+    tableName: 'Adopcion',
     timestamps: false
   });
 
-  SolicitudAdopcion.associate = (models) => {
-    SolicitudAdopcion.belongsTo(models.Mascota, {
+  Adopcion.associate = (models) => {
+    Adopcion.belongsTo(models.Mascota, {
       foreignKey: 'MascotaID',
       as: 'Mascota'
     });
 
-    SolicitudAdopcion.belongsTo(models.Usuario, {
+    Adopcion.belongsTo(models.Usuario, {
       foreignKey: 'PublicadorID',
       as: 'Publicador'
     });
 
-    SolicitudAdopcion.belongsTo(models.Ubicacion, {
+    Adopcion.belongsTo(models.Ubicacion, {
       foreignKey: 'UbicacionID',
       as: 'Ubicacion'
     });
   };
 
-  return SolicitudAdopcion;
+  return Adopcion;
 };

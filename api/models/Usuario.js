@@ -42,16 +42,6 @@ module.exports = (sequelize, DataTypes) => {
       as: 'Acceso'
     });
 
-    Usuario.hasMany(models.Mensaje, {
-      foreignKey: 'RemitenteID',
-      as: 'MensajesEnviados'
-    });
-
-    Usuario.hasMany(models.Mensaje, {
-      foreignKey: 'ReceptorID',
-      as: 'MensajesRecibidos'
-    });
-
     Usuario.hasMany(models.FotoUsuario, {
       foreignKey: 'UsuarioID',
       as: 'Fotos'
@@ -62,17 +52,10 @@ module.exports = (sequelize, DataTypes) => {
       as: 'SolicitudesRealizadas'
     });
 
-    Usuario.hasMany(models.SolicitudAdopcion, {
+    Usuario.hasMany(models.Adopcion, {
       foreignKey: 'PublicadorID',
-      as: 'SolicitudesRecibidas'
+      as: 'AdopcionesRecibidas'
     });
-
-    Usuario.hasMany(models.Notificacion, {
-      foreignKey: 'UsuarioID',
-      as: 'Notificaciones',
-      onDelete: 'CASCADE'
-    });
-
   };
 
   return Usuario;

@@ -49,9 +49,9 @@ module.exports = (sequelize, DataTypes) => {
       as: 'videos'
     });
 
-    Mascota.hasMany(models.SolicitudAdopcion, {
+    Mascota.hasMany(models.Adopcion, {
       foreignKey: 'MascotaID',
-      as: 'Solicitudes'
+      as: 'adopciones'
     });
   };
   
