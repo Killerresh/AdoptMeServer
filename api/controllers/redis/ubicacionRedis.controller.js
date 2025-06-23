@@ -106,6 +106,7 @@ async function obtenerAdopcionesCercanas(Longitud, Latitud, UsuarioID) {
         console.error('Error obteniendo ubicaciones cercanas: ', error.message);
         console.error(error.stack);
         throw error;
+    }
 }
 
 async function eliminarUbicacionUsuario(usuarioId) {
