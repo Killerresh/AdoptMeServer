@@ -43,6 +43,13 @@ function crearManejadorStream({ directorioDestino, modeloBD, modeloPadre, campoF
           const tipoContenido = data.contenido;
 
           if (tipoContenido === 'metadata' && data.metadata) {
+            if (metadata) {
+              return terminarConError({
+                code: grpc.status.ALREADY_EXISTS,
+                message: 'Los metadatos ya fueron enviados',
+              });
+            }
+
             metadata = data.metadata;
             const extension = path.extname(metadata.nombreArchivo).toLowerCase();
 
@@ -66,7 +73,16 @@ function crearManejadorStream({ directorioDestino, modeloBD, modeloPadre, campoF
             nombreSeguro = `${Date.now()}_${metadata.nombreArchivo}`;
             ruta = path.join(directorioDestino, nombreSeguro);
             fs.mkdirSync(directorioDestino, { recursive: true });
+
             fileStream = fs.createWriteStream(ruta);
+            fileStream.on('error', (err) => {
+              console.error('Error al escribir en disco:', err);
+              terminarConError({
+                code: grpc.status.INTERNAL,
+                message: 'Error al guardar el archivo en disco',
+              });
+            });
+            
             console.log('Inicio escritura en archivo:', ruta);
 
           } else if (tipoContenido === 'chunk' && data.chunk) {
@@ -105,9 +121,8 @@ function crearManejadorStream({ directorioDestino, modeloBD, modeloPadre, campoF
           });
         }
 
-        fileStream.end();
-
-        const urlRelativa = `/multimedia/${subruta}/${nombreSeguro}`;
+        fileStream.end(async () => {
+          const urlRelativa = `/multimedia/${subruta}/${nombreSeguro}`;
 
         try {
           const registrosAnteriores = await modeloBD.findAll({
@@ -136,6 +151,7 @@ function crearManejadorStream({ directorioDestino, modeloBD, modeloPadre, campoF
             message: 'Error al guardar el archivo en la base de datos',
           });
         }
+        });
       });
 
       call.on('error', (err) => {

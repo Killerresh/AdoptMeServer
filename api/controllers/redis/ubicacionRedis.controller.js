@@ -86,22 +86,28 @@ async function obtenerAdopcionesCercanas(Longitud, Latitud, UsuarioID) {
             };
         });
 
-        return solicitudes.map(s => ({
-            solicitudAdopcionId: s.SolicitudAdopcionID,
-            latitud: coordenadasPorID[s.SolicitudAdopcionID].latitud,
-            longitud: coordenadasPorID[s.SolicitudAdopcionID].longitud,
-            distancia: coordenadasPorID[s.SolicitudAdopcionID].distancia,
-            mascota: {
-                mascotaId: s.Mascota.MascotaID,
-                nombre: s.Mascota.Nombre,
-                especie: s.Mascota.Especie,
-                raza: s.Mascota.Raza,
-                edad: s.Mascota.Edad,
-                sexo: s.Mascota.Sexo,
-                tamano: s.Mascota.Tamaño,
-                descripcion: s.Mascota.Descripcion
-            }
-        }));
+        const resultadosRedis = adopciones.map(a => {
+            const coords = coordenadasPorID[a.AdopcionID.toString()];
+            return {
+                solicitudAdopcionId: a.AdopcionID,
+                latitud: coords.latitud,
+                longitud: coords.longitud,
+                distancia: coords.distancia,
+                mascota: {
+                    mascotaId: a.Mascota.MascotaID,
+                    nombre: a.Mascota.Nombre,
+                    especie: a.Mascota.Especie,
+                    raza: a.Mascota.Raza,
+                    edad: a.Mascota.Edad,
+                    sexo: a.Mascota.Sexo,
+                    tamano: a.Mascota.Tamaño,
+                    descripcion: a.Mascota.Descripcion
+                }
+            };
+        });
+
+        return resultadosRedis;
+
     } catch (error) {
         console.error('Error obteniendo ubicaciones cercanas: ', error.message);
         console.error(error.stack);
