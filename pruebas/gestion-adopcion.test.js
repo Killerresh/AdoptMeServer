@@ -4,7 +4,7 @@ const redis = require("../api/config/clienteRedis")
 jest.setTimeout(60000);
 
 let app;
-let Ubicacion, SolicitudAdopcion, Mascota;
+let Ubicacion, Solicitud, Mascota;
 let db;
 let token;
 
@@ -14,17 +14,17 @@ beforeAll(async () => {
 
   db = getDb();
   Ubicacion = db.Ubicacion;
-  SolicitudAdopcion = db.SolicitudAdopcion;
+  Solicitud = db.Solicitud;
   Mascota = db.Mascota;
 });
 
 afterAll(async () => {
   try {
-    await SolicitudAdopcion.destroy({ where: {}, cascade: true });
+    await Solicitud.destroy({ where: {}, cascade: true });
     await Ubicacion.destroy({ where: {}, cascade: true });
     await Mascota.destroy({ where: {}, cascade: true });
 
-    await db.sequelize.query("DBCC CHECKIDENT ('dbo.SolicitudAdopcion', RESEED, 0)");
+    await db.sequelize.query("DBCC CHECKIDENT ('dbo.Solicitud', RESEED, 0)");
     await db.sequelize.query("DBCC CHECKIDENT ('dbo.Ubicacion', RESEED, 0)");
     await db.sequelize.query("DBCC CHECKIDENT ('dbo.Mascota', RESEED, 0)");
   } catch (error) {
@@ -80,7 +80,7 @@ describe('Pruebas de gestión de adopción', () => {
 
   test('Debe obtener todas las solicitudes de adopción', async () => {
     const res = await request(app)
-      .get('/api/solicitudAdopciones')
+      .get('/api/adopciones')
       .set('x-forwarded-for', '127.0.0.1')
 
     expect(Array.isArray(res.body)).toBe(true);
@@ -89,7 +89,7 @@ describe('Pruebas de gestión de adopción', () => {
 
   test('Debe obtener todas las solicitudes pendientes', async () => {
     const res = await request(app)
-      .get('/api/solicitudAdopciones/pendientes')
+      .get('/api/adopciones/pendientes')
       .set('x-forwarded-for', '127.0.0.1')
 
     expect(Array.isArray(res.body)).toBe(true);
@@ -98,7 +98,7 @@ describe('Pruebas de gestión de adopción', () => {
 
   test('Debe obtener todas las solicitudes aceptadas', async () => {
     const res = await request(app)
-      .get('/api/solicitudAdopciones/pendientes')
+      .get('/api/adopciones/pendientes')
       .set('x-forwarded-for', '127.0.0.1')
 
     expect(Array.isArray(res.body)).toBe(true);
@@ -107,7 +107,7 @@ describe('Pruebas de gestión de adopción', () => {
 
   test('Debe registrar una solicitud de adopción', async () => {
     const res = await request(app)
-      .get('/api/solicitudAdopciones/pendientes')
+      .get('/api/adopciones/pendientes')
       .set('x-forwarded-for', '127.0.0.1')
       .send({
         PublicadorID: 1,
@@ -136,7 +136,7 @@ describe('Pruebas de gestión de adopción', () => {
   test('Debe fallar al registrar si faltan campos obligatorios', async () => {
     const solicitud = { PublicadorID: 1 };
     const res = await request(app)
-      .post('/api/solicitudAdopciones')
+      .post('/api/adopciones')
       .set('x-forwarded-for', '127.0.0.1')
       .send(solicitud);
 
@@ -146,7 +146,7 @@ describe('Pruebas de gestión de adopción', () => {
 
   test('Debe obtener una solicitud por ID válido', async () => {
     const res = await request(app)
-      .get(`/api/solicitudAdopciones/1`)
+      .get(`/api/adopciones/1`)
       .set('x-forwarded-for', '127.0.0.1')
       .set('Authorization', `Bearer ${token}`);
 
@@ -155,7 +155,7 @@ describe('Pruebas de gestión de adopción', () => {
 
   test('Debe obtener solicitudes por PublicadorID', async () => {
     const res = await request(app)
-      .get('/api/solicitudAdopciones/por-publicador/1')
+      .get('/api/adopciones/por-publicador/1')
       .set('x-forwarded-for', '127.0.0.1');
 
     expect(res.statusCode).toBe(200);
@@ -219,7 +219,7 @@ describe('Pruebas de gestión de adopción', () => {
 
   test('Debe eliminar una solicitud por ID válido', async () => {
     const res = await request(app)
-      .delete('/api/solicitudAdopciones/1')
+      .delete('/api/adopciones/1')
       .set('x-forwarded-for', '127.0.0.1');
 
     expect([200, 404]).toContain(res.statusCode);
