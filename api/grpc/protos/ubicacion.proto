@@ -4,7 +4,7 @@ package ubicacion;
 
 service ServicioUbicacion {
   rpc ActualizarUbicacion (Ubicacion) returns (Empty);
-  rpc ObtenerSolicitudesCercanas (Ubicacion) returns (SolicitudesCercanas);
+  rpc ObtenerAdopcionesCercanas (Ubicacion) returns (AdopcionesCercanas);
 }
 
 message Ubicacion {
@@ -13,7 +13,7 @@ message Ubicacion {
   double latitud = 3;
 }
 
-message SolicitudCercana {
+message AdopcionCercana {
   int32 solicitudAdopcionId = 1;
   double distancia = 2;
   double longitud = 3;
@@ -32,8 +32,8 @@ message Mascota {
   string descripcion = 8;
 }
 
-message SolicitudesCercanas {
-  repeated SolicitudCercana resultados = 1;
+message AdopcionesCercanas {
+  repeated AdopcionCercana resultados = 1;
 }
 
 message Empty {}

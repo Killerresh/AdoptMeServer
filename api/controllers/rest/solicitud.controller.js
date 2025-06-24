@@ -63,4 +63,48 @@ exports.eliminarSolicitud = async (req, res) => {
   }
 };
 
+exports.registrarSolicitud = async (req, res) => {
+  const db = getDb();
+  const usuario = req.usuario;
+  const { AdopcionID } = req.body;
 
+  try {
+    if (!usuario) {
+      return res.status(401).json({ error: 'No autorizado' });
+    }
+
+    if (!AdopcionID || isNaN(AdopcionID)) {
+      return res.status(400).json({ error: 'ID de adopción inválido' });
+    }
+
+    const adopcion = await db.Adopcion.findByPk(AdopcionID);
+    if (!adopcion) {
+      return res.status(404).json({ error: 'Adopción no encontrada' });
+    }
+
+    if (adopcion.PublicadorID === usuario.UsuarioID) {
+      return res.status(400).json({ error: 'No puedes solicitar tu propia adopción' });
+    }
+
+    const yaSolicitada = await db.Solicitud.findOne({
+      where: {
+        AdoptanteID: usuario.UsuarioID,
+        AdopcionID: AdopcionID
+      }
+    });
+
+    if (yaSolicitada) {
+      return res.status(409).json({ error: 'Ya has enviado una solicitud para esta adopción' });
+    }
+
+    const nuevaSolicitud = await db.Solicitud.create({
+      AdoptanteID: usuario.UsuarioID,
+      AdopcionID: AdopcionID
+    });
+
+    return res.status(201).json({ mensaje: 'Solicitud registrada con éxito', solicitud: nuevaSolicitud });
+  } catch (error) {
+    console.error('Error al registrar solicitud:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+}
