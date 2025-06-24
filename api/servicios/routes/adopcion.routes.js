@@ -9,5 +9,7 @@ router.post('/', adopcionController.registrarAdopcion);
 router.delete('/:id', adopcionController.eliminarAdopcion);
 router.get('/:id', adopcionController.obtenerAdopcionPorId);
 router.get('/por-publicador/:publicadorId', adopcionController.obtenerAdopcionesPorPublicador);
+router.put('/:id', adopcionController.modificarAdopcion);
+
 
 module.exports = router;

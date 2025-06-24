@@ -225,3 +225,67 @@ exports.obtenerAdopcionesPorPublicador = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener las adopciones' });
   }
 };
+
+exports.modificarAdopcion = async (req, res) => {
+  const db = getDb();
+  const t = await db.sequelize.transaction();
+
+  try {
+    const { id } = req.params;
+    const {
+      Estado,
+      Ubicacion,
+      Mascota
+    } = req.body;
+
+    const adopcion = await db.Adopcion.findByPk(id, { transaction: t });
+
+    if (!adopcion) {
+      await t.rollback();
+      return res.status(404).json({ error: 'Adopción no encontrada' });
+    }
+
+    // Actualizar adopción (solo los campos enviados)
+    if (Estado !== undefined) adopcion.Estado = Estado;
+
+    await adopcion.save({ transaction: t });
+
+    // Actualizar mascota si se envía
+    if (Mascota) {
+      const mascota = await db.Mascota.findByPk(adopcion.MascotaID, { transaction: t });
+
+      if (mascota) {
+        const camposMascota = ['Nombre', 'Especie', 'Raza', 'Edad', 'Sexo', 'Tamaño', 'Descripcion'];
+        for (const campo of camposMascota) {
+          if (Mascota[campo] !== undefined) {
+            mascota[campo] = Mascota[campo];
+          }
+        }
+        await mascota.save({ transaction: t });
+      }
+    }
+
+    // Actualizar ubicación si se envía
+    if (Ubicacion) {
+      const ubicacion = await db.Ubicacion.findByPk(adopcion.UbicacionID, { transaction: t });
+
+      if (ubicacion) {
+        const camposUbicacion = ['Latitud', 'Longitud', 'Ciudad', 'Estado', 'Pais'];
+        for (const campo of camposUbicacion) {
+          if (Ubicacion[campo] !== undefined) {
+            ubicacion[campo] = Ubicacion[campo];
+          }
+        }
+        await ubicacion.save({ transaction: t });
+      }
+    }
+
+    await t.commit();
+    res.status(200).json({ mensaje: 'Adopción modificada correctamente' });
+
+  } catch (error) {
+    await t.rollback();
+    console.error('Error al modificar la adopción:', error);
+    res.status(500).json({ error: 'Error al modificar la adopción' });
+  }
+};
