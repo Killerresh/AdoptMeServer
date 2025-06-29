@@ -98,6 +98,18 @@ CREATE TABLE [dbo].[Solicitud] (
 );
 GO
 
+-- Tabla Chat 
+CREATE TABLE [dbo].[Chat] (
+    [ChatID] INT IDENTITY(1,1) NOT NULL,
+    [RemitenteID] INT NOT NULL,
+    [DestinatarioID] INT NOT NULL,
+    [Contenido] NVARCHAR(MAX) NOT NULL,
+    [FechaEnvio] DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT [PK_Chat] PRIMARY KEY CLUSTERED ([ChatID] ASC)
+);
+GO
+
+
 ----------------------------------------------------
 -- Creación de Claves Foráneas (Foreign Keys - FKs)
 ----------------------------------------------------
@@ -163,5 +175,20 @@ ALTER TABLE [dbo].[Solicitud]
 ADD CONSTRAINT [FK_Solicitud_Adopcion] FOREIGN KEY ([AdopcionID])
 REFERENCES [dbo].[Adopcion] ([AdopcionID]);
 GO
+
+-- FK para Chat (RemitenteID → Usuario)
+ALTER TABLE [dbo].[Chat]
+ADD CONSTRAINT [FK_Chat_Usuario_Remitente] FOREIGN KEY ([RemitenteID])
+REFERENCES [dbo].[Usuario] ([UsuarioID])
+ON DELETE CASCADE;
+GO
+
+-- FK para Chat (DestinatarioID → Usuario)
+ALTER TABLE [dbo].[Chat]
+ADD CONSTRAINT [FK_Chat_Usuario_Destinatario] FOREIGN KEY ([DestinatarioID])
+REFERENCES [dbo].[Usuario] ([UsuarioID])
+ON DELETE CASCADE;
+GO
+
 
 PRINT 'Esquema de la base de datos (tablas y claves) creado exitosamente.';

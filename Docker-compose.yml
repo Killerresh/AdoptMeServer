@@ -17,9 +17,9 @@ services:
     ports:
       - "3000:3000"
       - "50051:50051"
-    volumes:
-      - "./api:/app"
-      - /app/node_modules
+    #volumes:
+     # - "./api:/app"
+      #- /app/node_modules
     stdin_open: true
     tty: true
     depends_on:

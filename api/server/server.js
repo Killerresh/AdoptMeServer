@@ -2,11 +2,15 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { conexionConReintentos, getDb }  = require('../config/db');
+const { conexionConReintentos, getDb } = require('../config/db');
 const bloquearAccesoDireto = require('../middlewares/bloquear-acceso-direto');
 const { iniciarServiciosGrpc } = require('../grpc/grpcServer');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
+
+// 🔌 Socket.IO
+const http = require('http');
+const socketIO = require('socket.io');
 
 class Server {
 
@@ -27,11 +31,26 @@ class Server {
     async start() {
         await this.init();
 
-        const httpServer = require('http').createServer(this.app);
+        // 🚀 Servidor HTTP
+        const httpServer = http.createServer(this.app);
+
+        // 🔌 Inicializar Socket.IO
+        const io = socketIO(httpServer, {
+            cors: {
+                origin: '*',
+                methods: ['GET', 'POST']
+            }
+        });
+
+        // 🔁 Lógica de sockets
+        require('../sockets/chat.socket')(io);
+
+        // 🚀 Iniciar HTTP Server
         httpServer.listen(this.port, () => {
             console.log(`API Express corriendo en puerto ${this.port}`);
         });
-        
+
+        // 🛰️ Iniciar gRPC
         const db = getDb();
         iniciarServiciosGrpc(db);
     }
@@ -43,12 +62,13 @@ class Server {
         this.app.use('/api/adopciones', require('../servicios/routes/adopcion.routes'));
         this.app.use('/api/acceso', require('../servicios/routes/acceso.routes'));
         this.app.use('/api/solicitudes', require('../servicios/routes/solicitud.routes'));
+        this.app.use('/api/chat', require('../servicios/routes/chat.routes'));
     }
 
     middlewares() {
         this.app.use(cors());
         this.app.use(express.json());
-        this.app.use(bloquearAccesoDireto)
+        this.app.use(bloquearAccesoDireto);
         this.app.use('/multimedia', express.static(path.join(__dirname, 'multimedia')));
     }
 
