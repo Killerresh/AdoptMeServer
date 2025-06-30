@@ -8,7 +8,6 @@ const { iniciarServiciosGrpc } = require('../grpc/grpcServer');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 
-// 🔌 Socket.IO
 const http = require('http');
 const socketIO = require('socket.io');
 
@@ -31,10 +30,8 @@ class Server {
     async start() {
         await this.init();
 
-        // 🚀 Servidor HTTP
         const httpServer = http.createServer(this.app);
 
-        // 🔌 Inicializar Socket.IO
         const io = socketIO(httpServer, {
             cors: {
                 origin: '*',
@@ -42,15 +39,12 @@ class Server {
             }
         });
 
-        // 🔁 Lógica de sockets
         require('../sockets/chat.socket')(io);
 
-        // 🚀 Iniciar HTTP Server
         httpServer.listen(this.port, () => {
             console.log(`API Express corriendo en puerto ${this.port}`);
         });
 
-        // 🛰️ Iniciar gRPC
         const db = getDb();
         iniciarServiciosGrpc(db);
     }
