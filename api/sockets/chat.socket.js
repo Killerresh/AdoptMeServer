@@ -14,6 +14,13 @@ module.exports = (io) => {
       const db = getDb();
 
       try {
+        // Si data es un string JSON, parsearlo
+        if (typeof data === 'string') {
+          data = JSON.parse(data);
+        }
+
+        console.log('Datos recibidos en enviar_mensaje:', data);
+
         const nuevoMensaje = await db.Chat.create({
           RemitenteID: data.RemitenteID,
           DestinatarioID: data.DestinatarioID,

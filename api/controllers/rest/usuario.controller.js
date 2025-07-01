@@ -141,3 +141,24 @@ exports.actualizarPerfil = async (req, res) => {
     res.status(500).json({ error: 'Error al actualizar el perfil' });
   }
 };
+
+exports.obtenerUsuarioPorID = async (req, res) => {
+  const db = getDb();
+  const { id } = req.params;
+
+  try {
+    const usuario = await db.Usuario.findByPk(id);
+
+    if (!usuario) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    res.status(200).json({
+      UsuarioID: usuario.UsuarioID,
+      Nombre: usuario.Nombre
+    });
+  } catch (error) {
+    console.error('Error al obtener usuario por ID:', error);
+    res.status(500).json({ error: 'Error interno al obtener usuario' });
+  }
+};

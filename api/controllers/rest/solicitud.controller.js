@@ -10,9 +10,8 @@ exports.obtenerSolicitudesConNombresPorAdopcionID = async (req, res) => {
     }
 
     const solicitudes = await db.Solicitud.findAll({
-      where: {
-        AdopcionID: adopcionID
-      },
+      where: { AdopcionID: adopcionID },
+      attributes: ['SolicitudID', 'AdopcionID', 'AdoptanteID'], // <- importante
       include: {
         model: db.Usuario,
         as: 'Adoptante',
@@ -27,16 +26,17 @@ exports.obtenerSolicitudesConNombresPorAdopcionID = async (req, res) => {
     const resultado = solicitudes.map(s => ({
       SolicitudID: s.SolicitudID,
       AdopcionID: s.AdopcionID,
-      NombreAdoptante: s.Adoptante?.Nombre || 'Desconocido'
+      NombreAdoptante: s.Adoptante?.Nombre || 'Desconocido',
+      AdoptanteID: s.AdoptanteID
     }));
 
     return res.status(200).json(resultado);
-
   } catch (error) {
     console.error('Error al obtener solicitudes con nombres:', error);
     return res.status(500).json({ error: 'Error interno del servidor' });
   }
 };
+
 
 exports.eliminarSolicitud = async (req, res) => {
   const db = getDb(); 
