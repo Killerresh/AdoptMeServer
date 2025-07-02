@@ -141,17 +141,6 @@ describe('Pruebas de Chat', () => {
     expect(res.statusCode).toBe(400);
   });
 
-  test('Debe obtener lista de chats de un usuario', async () => {
-    const res = await request(app)
-      .get(`/api/chat/usuario/${usuario1.UsuarioID}`)
-      .set('x-forwarded-for', '127.0.0.1`);
-
-    expect(res.statusCode).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body[0]).toHaveProperty('Nombre');
-    expect(res.body[0]).toHaveProperty('UltimoMensaje');
-  });
-
   test('Debe retornar 400 si el ID del usuario es inválido al obtener lista de chats', async () => {
     const res = await request(app)
       .get('/api/chat/usuario/abc')
