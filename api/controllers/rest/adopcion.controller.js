@@ -1,5 +1,6 @@
 const { getDb } = require('../../config/db');
-const { registrarUbicacionAdopcion } = require("../redis/ubicacionRedis.controller");
+const { registrarUbicacionAdopcion, obtenerUsuariosCercanos } = require("../redis/ubicacionRedis.controller");
+const { enviarNotificacionGrpc } = require('../../grpc/grpcClientes/notificacionCliente.grpc');
 
 exports.obtenerAdopciones = async (req, res) => {
   const db = getDb();
@@ -83,6 +84,7 @@ exports.registrarAdopcion = async (req, res) => {
     let ubicacionId = null;
     let latitud = null;
     let longitud = null;
+    let nuevaUbicacion = null;
 
     console.log('Creando ubicación...');
     if (UbicacionAdopcion) {
@@ -94,7 +96,7 @@ exports.registrarAdopcion = async (req, res) => {
         return res.status(400).json({ error: 'Coordenadas inválidas' });
       }
 
-      const nuevaUbicacion = await db.Ubicacion.create(UbicacionAdopcion, { transaction: t });
+      nuevaUbicacion = await db.Ubicacion.create(UbicacionAdopcion, { transaction: t });
       ubicacionId = nuevaUbicacion.UbicacionID;
     }
 
@@ -106,13 +108,39 @@ exports.registrarAdopcion = async (req, res) => {
       UbicacionID: ubicacionId
     }, { transaction: t });
 
-    await registrarUbicacionAdopcion(nuevaAdopcion.AdopcionID, 
+    await registrarUbicacionAdopcion(nuevaAdopcion.AdopcionID,
       longitud, latitud, nuevaAdopcion.Estado, PublicadorID);
 
-    console.log('Confirmando transacción...');  
+    const usuariosCercanos = await obtenerUsuariosCercanos(longitud, latitud, PublicadorID);
+    console.log('Usuarios cercanos encontrados:', usuariosCercanos);
+
+    const token = req.headers.authorization?.replace('Bearer ', '');
+
+    for (const usuario of usuariosCercanos) {
+      const notificacion = {
+        usuarioId: usuario.UsuarioID,
+        titulo: 'Nueva adopción cercana',
+        mensaje: `¡${nuevaMascota.Nombre} está disponible para adopción a solo ${usuario.DistanciaKm} km de ti!`,
+        tipo: 'Adopcion',
+        referenciaId: nuevaAdopcion.AdopcionID,
+        referenciaTipo: 'Adopcion',
+        fecha: new Date().toISOString()
+      };
+
+      console.log('Antes de llamar a enviarNotificacionGrpc:', notificacion);
+
+      try {
+        await enviarNotificacionGrpc(token, notificacion);
+        console.log('Notificación enviada OK para usuario:', usuario.usuarioId);
+      } catch (error) {
+        console.error(`Error notificando usuario ${usuario.UsuarioID}:`, error.message);
+      }
+    }
+
+    console.log('Confirmando transacción...');
     await t.commit();
-    console.log(nuevaMascota.MascotaID);
-    res.status(201).json({ 
+
+    res.status(201).json({
       mensaje: 'Adopción registrada correctamente',
       MascotaID: nuevaMascota.MascotaID
     });
@@ -212,7 +240,7 @@ exports.obtenerAdopcionesPorPublicador = async (req, res) => {
             {
               model: db.FotoMascota,
               as: 'fotos',
-              limit: 1 
+              limit: 1
             }
           ]
         }

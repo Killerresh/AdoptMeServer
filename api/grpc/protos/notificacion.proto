@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package notificacion;
+
+service ServicioNotificacion {
+  rpc EscucharNotificaciones(Empty) returns (stream Notificacion);
+  rpc EnviarNotificacion (NotificacionInput) returns (Respuesta);
+}
+
+message UsuarioID {
+  int32 usuarioId = 1;
+}
+
+message NotificacionInput {
+  int32 usuarioId = 1;
+  string titulo = 2;
+  string mensaje = 3;
+  string tipo = 4;
+  int32 referenciaId = 5;
+  string referenciaTipo = 6;
+  string fecha = 7;
+}
+
+message Notificacion {
+  string titulo = 1;
+  string mensaje = 2;
+  string tipo = 3;
+  int32 referenciaId = 4;
+  string referenciaTipo = 5;
+  string fecha = 6;
+}
+
+message Respuesta {
+  bool exito = 1;
+  string mensaje = 2;
+}
+
+message Empty {}

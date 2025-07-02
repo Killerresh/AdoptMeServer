@@ -115,6 +115,65 @@ async function obtenerAdopcionesCercanas(Longitud, Latitud, UsuarioID) {
     }
 }
 
+async function obtenerUsuariosCercanos(longitud, latitud, usuarioIDExcluido) {
+    try {
+        const resultados = await redis.sendCommand([
+            'GEOSEARCH',
+            keyGeoUsuarios,
+            'FROMLONLAT',
+            longitud.toString(),
+            latitud.toString(),
+            'BYRADIUS',
+            '10000',
+            'm',
+            'WITHDIST',
+            'COUNT',
+            '100',
+            'ASC'
+        ]);
+
+        const usuariosConDistancia = resultados
+            .filter(r => r[0].startsWith('usuario:'))
+            .map(r => {
+                const usuarioId = parseInt(r[0].replace('usuario:', ''));
+                const distanciaMetros = parseFloat(r[1]);
+                return { usuarioId, distanciaKm: (distanciaMetros / 1000).toFixed(2) };
+            })
+            .filter(u => u.usuarioId !== usuarioIDExcluido);
+
+        console.log('Usuarios con distancia obtenidos de Redis:', usuariosConDistancia);
+
+        if (usuariosConDistancia.length === 0) return [];
+
+        const db = getDb();
+        const { Usuario } = db;
+
+        const usuarios = await Usuario.findAll({
+            where: { UsuarioID: usuariosConDistancia.map(u => u.usuarioId) }
+        });
+
+        const usuariosCercanos = usuarios.map(usuario => {
+            const infoDistancia = usuariosConDistancia.find(u => u.usuarioId === usuario.UsuarioID);
+            if (!infoDistancia) {
+                console.warn(`No se encontró distancia para usuario ${usuario.UsuarioID}`);
+                return null;
+            }
+            return {
+                UsuarioID: usuario.UsuarioID,
+                Nombre: usuario.Nombre,
+                DistanciaKm: infoDistancia.distanciaKm
+            };
+        }).filter(u => u !== null);
+
+
+        return usuariosCercanos;
+
+    } catch (error) {
+        console.error('Error al notificar usuarios cercanos:', error.message);
+        throw error;
+    }
+}
+
 async function eliminarUbicacionUsuario(usuarioId) {
     try {
         await redis.zRem(keyGeoUsuarios, `usuario:${usuarioId}`);
@@ -146,6 +205,7 @@ module.exports = {
     actualizarUbicacionUsuario,
     registrarUbicacionAdopcion,
     obtenerAdopcionesCercanas,
+    obtenerUsuariosCercanos,
     eliminarUbicacionUsuario,
     eliminarUbicacionAdopcion
 };
