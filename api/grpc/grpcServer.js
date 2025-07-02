@@ -27,6 +27,11 @@ const servicios = [
         nombre: 'ServicioMultimedia',
         protoPath: path.join(grpcDir, '/protos/multimedia.proto'),
         implementacion: require('./serviciosGrpc/multimedia.grpc'),
+    },
+    {
+        nombre: 'ServicioNotificacion',
+        protoPath: path.join(grpcDir, '/protos/notificacion.proto'),
+        implementacion: require('./serviciosGrpc/notificacion.grpc'),
     }
 ];
 

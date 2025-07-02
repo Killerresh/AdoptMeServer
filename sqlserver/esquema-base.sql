@@ -109,6 +109,20 @@ CREATE TABLE [dbo].[Chat] (
 );
 GO
 
+-- Tabla Notificacion
+CREATE TABLE [dbo].[Notificacion] (
+    [NotificacionID] INT IDENTITY(1,1) NOT NULL,
+    [UsuarioID] INT NOT NULL,
+    [Titulo] VARCHAR(100) NOT NULL,
+    [Mensaje] VARCHAR(MAX) NOT NULL,
+    [Tipo] VARCHAR(50) NOT NULL,
+    [FechaCreacion] DATETIME2 NOT NULL DEFAULT GETDATE(),
+    [Leida] BIT NOT NULL DEFAULT 0,
+    [ReferenciaID] INT NULL,
+    [ReferenciaTipo] VARCHAR(50) NULL,
+    CONSTRAINT [PK_Notificacion] PRIMARY KEY CLUSTERED ([NotificacionID] ASC)
+);
+GO
 
 ----------------------------------------------------
 -- Creación de Claves Foráneas (Foreign Keys - FKs)
@@ -190,5 +204,11 @@ REFERENCES [dbo].[Usuario] ([UsuarioID])
 ON DELETE CASCADE;
 GO
 
+-- FK para Notificacion
+ALTER TABLE [dbo].[Notificacion]
+ADD CONSTRAINT [FK_Notificacion_Usuario] FOREIGN KEY ([UsuarioID])
+REFERENCES [dbo].[Usuario] ([UsuarioID])
+ON DELETE CASCADE;
+GO
 
 PRINT 'Esquema de la base de datos (tablas y claves) creado exitosamente.';
