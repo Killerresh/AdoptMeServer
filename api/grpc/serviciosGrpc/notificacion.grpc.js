@@ -37,7 +37,6 @@ class NotificacionManager extends EventEmitter {
 
     enviarNotificacion(usuarioId, notificacion) {
         if (this.clientes.has(usuarioId)) {
-            console.log(`Enviando notificación a ${this.clientes.get(usuarioId).size} cliente(s) del usuario ${usuarioId}`);
             for (const call of this.clientes.get(usuarioId)) {
                 call.write(notificacion);
             }
@@ -76,15 +75,15 @@ function ServicioNotificacion(db) {
         EnviarNotificacion: withAuth(async (call, callback) => {
             try {
                 console.log('Recibida petición EnviarNotificacion:', call.request);
-                
-                const { usuarioId, titulo, mensaje, tipo, referenciaID, referenciaTipo, fecha } = call.request;
+
+                const { usuarioId, titulo, mensaje, tipo, referenciaId, referenciaTipo, fecha } = call.request;
 
                 const notificacion = await db.Notificacion.create({
                     UsuarioID: usuarioId,
                     Titulo: titulo,
                     Mensaje: mensaje,
                     Tipo: tipo,
-                    ReferenciaID: referenciaID,
+                    ReferenciaID: referenciaId,
                     ReferenciaTipo: referenciaTipo,
                     FechaCreacion: fecha ? new Date(fecha) : new Date(),
                     Leida: false
@@ -93,6 +92,7 @@ function ServicioNotificacion(db) {
                 console.log(`📢 Enviando notificación push a usuario ${usuarioId}:`, notificacion.Mensaje);
 
                 manager.enviarNotificacion(usuarioId, {
+                    notificacionId: notificacion.NotificacionID,
                     titulo: notificacion.Titulo,
                     mensaje: notificacion.Mensaje,
                     tipo: notificacion.Tipo,

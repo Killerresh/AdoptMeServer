@@ -57,6 +57,7 @@ class Server {
         this.app.use('/api/acceso', require('../servicios/routes/acceso.routes'));
         this.app.use('/api/solicitudes', require('../servicios/routes/solicitud.routes'));
         this.app.use('/api/chat', require('../servicios/routes/chat.routes'));
+        this.app.use('/api/notificaciones', require('../servicios/routes/notificacion.routes'))
     }
 
     middlewares() {
