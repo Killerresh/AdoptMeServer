@@ -112,7 +112,6 @@ exports.registrarAdopcion = async (req, res) => {
       longitud, latitud, nuevaAdopcion.Estado, PublicadorID);
 
     const usuariosCercanos = await obtenerUsuariosCercanos(longitud, latitud, PublicadorID);
-    console.log('Usuarios cercanos encontrados:', usuariosCercanos);
 
     const token = req.headers.authorization?.replace('Bearer ', '');
 
@@ -127,11 +126,8 @@ exports.registrarAdopcion = async (req, res) => {
         fecha: new Date().toISOString()
       };
 
-      console.log('Antes de llamar a enviarNotificacionGrpc:', notificacion);
-
       try {
         await enviarNotificacionGrpc(token, notificacion);
-        console.log('Notificación enviada OK para usuario:', usuario.usuarioId);
       } catch (error) {
         console.error(`Error notificando usuario ${usuario.UsuarioID}:`, error.message);
       }
@@ -210,7 +206,18 @@ exports.obtenerAdopcionPorId = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const adopcion = await db.Adopcion.findByPk(id);
+    const adopcion = await db.Adopcion.findByPk(id, {
+      include: [
+        {
+          model: db.Ubicacion,
+          as: 'Ubicacion'
+        },
+        {
+          model: db.Mascota,
+          as: 'Mascota'
+        }
+      ]
+    });
 
     if (!adopcion) {
       return res.status(404).json({ mensaje: 'Adopción no encontrada' });
